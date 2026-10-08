@@ -20,7 +20,14 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - registry
+      registry:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8888'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 15s
     networks:
       - escuela-network
 
@@ -46,7 +53,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - registry
+      registry:
+        condition: service_started
     networks:
       - escuela-network
 
@@ -60,9 +68,12 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - registry
-      - configserver
-      - auth
+      registry:
+        condition: service_started
+      configserver:
+        condition: service_healthy
+      auth:
+        condition: service_started
     networks:
       - escuela-network
 
@@ -74,7 +85,8 @@ services:
     ports:
       - "4200:4000"
     depends_on:
-      - gateway
+      gateway:
+        condition: service_started
     networks:
       - escuela-network
 
@@ -89,9 +101,12 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - registry
-      - configserver
-      - rabbitmq
+      registry:
+        condition: service_started
+      configserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     networks:
       - escuela-network
 
@@ -105,9 +120,12 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - registry
-      - configserver
-      - rabbitmq
+      registry:
+        condition: service_started
+      configserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     networks:
       - escuela-network
 
@@ -121,8 +139,10 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - registry
-      - configserver
+      registry:
+        condition: service_started
+      configserver:
+        condition: service_healthy
     networks:
       - escuela-network
 
@@ -136,8 +156,10 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - registry
-      - configserver
+      registry:
+        condition: service_started
+      configserver:
+        condition: service_healthy
     networks:
       - escuela-network
 

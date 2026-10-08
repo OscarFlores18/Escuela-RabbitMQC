@@ -1,9 +1,12 @@
 package com.app.service;
 
+import com.app.config.RabbitMQConfig;
 import com.app.dto.AlumnoConCursoDTO;
 import com.app.dto.AlumnoModificarDTO;
 import com.app.model.Alumno;
 import com.app.repository.AlumnoRepository;
+import com.app.senders.AlumnoEvent;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,14 +16,30 @@ import java.util.Optional;
 public class AlumnoServiceImpl implements AlumnoService {
 
     private final AlumnoRepository alumnoRepository;
+    private final RabbitTemplate rabbitTemplate;
 
-    public AlumnoServiceImpl(AlumnoRepository alumnoRepository) {
+    public AlumnoServiceImpl(AlumnoRepository alumnoRepository, RabbitTemplate rabbitTemplate) {
         this.alumnoRepository = alumnoRepository;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
-    public Alumno altaAlumno(Alumno alumno) {
-        return alumnoRepository.save(alumno);
+    public Alumno altaAlumno(Alumno alumno, Long cursoId) {
+        Alumno nuevo = alumnoRepository.save(alumno);
+
+        if (cursoId != null) {
+            AlumnoEvent event = new AlumnoEvent();
+            event.setIdAlumno(nuevo.getId());
+            event.setIdCurso(cursoId);
+
+            rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE,
+                RabbitMQConfig.ROUTING_KEY,
+                event
+            );
+        }
+
+        return nuevo;
     }
 
     @Override

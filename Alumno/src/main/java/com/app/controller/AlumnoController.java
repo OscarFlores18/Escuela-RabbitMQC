@@ -32,7 +32,7 @@ public class AlumnoController {
         nuevo.setApellido(dto.apellido());
         nuevo.setDni(dto.dni());
         nuevo.setEmail(dto.email());
-        Alumno creado = alumnoService.altaAlumno(nuevo);
+        Alumno creado = alumnoService.altaAlumno(nuevo, dto.cursoId());
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 

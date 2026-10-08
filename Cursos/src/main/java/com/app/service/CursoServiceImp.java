@@ -49,6 +49,7 @@ public class CursoServiceImp implements CursoService {
    
 
 	@Override
+	@Transactional
 	public void registrarALumno(long idCurso, long idAlumno) {
 		Curso curso =this.cursoRepository.findById(idCurso).get();
 		Alumno alumno = new Alumno();

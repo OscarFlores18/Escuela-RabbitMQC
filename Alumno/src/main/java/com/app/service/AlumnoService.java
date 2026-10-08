@@ -8,7 +8,7 @@ import com.app.dto.AlumnoModificarDTO;
 import com.app.model.Alumno;
 
 public interface AlumnoService {
-    Alumno altaAlumno(Alumno alumno);
+    Alumno altaAlumno(Alumno alumno, Long cursoId);
     List<Alumno> listarAlumnos();
     AlumnoConCursoDTO obtenerConCurso(Long alumnoId);
 
