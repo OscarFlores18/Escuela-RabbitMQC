@@ -1,1 +1,4 @@
 /.metadata/
+
+# Variables de entorno con secretos (no versionar)
+.env

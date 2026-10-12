@@ -1,0 +1,80 @@
+<div class="usuarios-container">
+
+  <div class="encabezado">
+
+    <div>
+      <h1>Gestión de Usuarios</h1>
+      <p>Usuarios del sistema y sus roles</p>
+    </div>
+
+    <button
+      type="button"
+      class="btn-nuevo"
+      (click)="abrirFormularioUsuario()">
+      + Nuevo usuario
+    </button>
+
+  </div>
+
+  <div class="tabla-container">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        @for (usuario of usuarios; track usuario.id) {
+
+          <tr>
+
+            <td>{{ usuario.id }}</td>
+
+            <td>{{ usuario.username }}</td>
+
+            <td>{{ usuario.rol }}</td>
+
+            <td class="acciones">
+              <button
+                type="button"
+                class="btn-editar"
+                (click)="abrirFormularioEditar(usuario)">
+                Editar
+              </button>
+
+              <button
+                type="button"
+                class="btn-eliminar"
+                (click)="confirmarEliminar(usuario)">
+                Eliminar
+              </button>
+            </td>
+
+          </tr>
+
+        }
+
+        @empty {
+
+          <tr>
+            <td colspan="4">
+              No hay usuarios registrados.
+            </td>
+          </tr>
+
+        }
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>

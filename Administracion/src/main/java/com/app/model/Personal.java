@@ -2,6 +2,7 @@ package com.app.model;
 
 import com.app.Enum.Cargo;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,6 +22,13 @@ public class Personal {
     private String nombre;
     private String apellido;
     private String email;
+
+    // Baja logica: el personal nunca se borra fisicamente, solo se marca inactivo
+    @Column(nullable = false)
+    private boolean activo = true;
+
+    @Enumerated(EnumType.STRING)
+    private Cargo cargo;
 
     public Personal() {
 	}
@@ -74,6 +82,11 @@ public class Personal {
 		this.cargo = cargo;
 	}
 
-	@Enumerated(EnumType.STRING)
-    private Cargo cargo;
+	public boolean isActivo() {
+		return activo;
+	}
+
+	public void setActivo(boolean activo) {
+		this.activo = activo;
+	}
 }

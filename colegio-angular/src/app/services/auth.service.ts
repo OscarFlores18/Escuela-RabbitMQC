@@ -59,6 +59,12 @@ obtenerToken(): string | null {
     return payload.role;
   }
 
+  // Devuelve true si el rol del usuario esta entre los permitidos.
+  tieneRol(...roles: string[]): boolean {
+    const rol = this.obtenerRol();
+    return rol !== null && roles.includes(rol);
+  }
+
   obtenerUsuario(): string | null {
     const token = this.obtenerToken();
 

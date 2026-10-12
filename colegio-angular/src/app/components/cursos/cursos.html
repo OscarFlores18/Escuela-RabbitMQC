@@ -7,12 +7,14 @@
       <p>Listado de cursos registrados</p>
     </div>
 
-    <button
-      type="button"
-      class="btn-nuevo"
-      (click)="abrirFormularioCurso()">
-      + Nuevo curso
-    </button>
+    @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA')) {
+      <button
+        type="button"
+        class="btn-nuevo"
+        (click)="abrirFormularioCurso()">
+        + Nuevo curso
+      </button>
+    }
 
   </div>
 
@@ -27,7 +29,11 @@
           <th>División</th>
           <th>Grado</th>
           <th>Turno</th>
+          <th>Materia</th>
+          <th>Horario</th>
           <th>Cupo máximo</th>
+          <th>Inscriptos</th>
+          <th>Docente</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -48,22 +54,52 @@
 
             <td>{{ curso.turno }}</td>
 
+            <td>{{ curso.materia }}</td>
+
+            <td>{{ curso.horario }}</td>
+
             <td>{{ curso.cupo_maximo }}</td>
 
-            <td class="acciones">
-              <button
-                type="button"
-                class="btn-editar"
-                (click)="abrirFormularioEditar(curso)">
-                Editar
-              </button>
+            <td>{{ curso.cantidadAlumnos ?? 0 }} / {{ curso.cupo_maximo }}</td>
 
-              <button
-                type="button"
-                class="btn-eliminar"
-                (click)="confirmarEliminar(curso)">
-                Eliminar
-              </button>
+            <td>{{ docenteDe(curso) }}</td>
+
+            <td class="acciones">
+              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA')) {
+                <button
+                  type="button"
+                  class="btn-editar"
+                  (click)="abrirFormularioEditar(curso)">
+                  Editar
+                </button>
+              }
+
+              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR')) {
+                <button
+                  type="button"
+                  class="btn-eliminar"
+                  (click)="confirmarEliminar(curso)">
+                  Eliminar
+                </button>
+              }
+
+              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA')) {
+                <button
+                  type="button"
+                  class="btn-inscribir"
+                  (click)="abrirInscribir(curso)">
+                  Inscribir
+                </button>
+              }
+
+              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR')) {
+                <button
+                  type="button"
+                  class="btn-quitar"
+                  (click)="abrirQuitar(curso)">
+                  Quitar
+                </button>
+              }
             </td>
 
           </tr>
@@ -73,7 +109,7 @@
         @empty {
 
           <tr>
-            <td colspan="6">
+            <td colspan="11">
               No hay cursos registrados.
             </td>
           </tr>

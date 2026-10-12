@@ -7,12 +7,14 @@
       <p>Listado del personal de la institución</p>
     </div>
 
-    <button
-      type="button"
-      class="btn-nuevo"
-      (click)="abrirFormularioPersonal()">
-      + Nuevo personal
-    </button>
+    @if (authService.tieneRol('ROOT', 'ADMIN')) {
+      <button
+        type="button"
+        class="btn-nuevo"
+        (click)="abrirFormularioPersonal()">
+        + Nuevo personal
+      </button>
+    }
 
   </div>
 
@@ -42,19 +44,21 @@
             <td>{{ persona.email }}</td>
             <td>{{ persona.cargo }}</td>
             <td class="acciones">
-              <button
-                type="button"
-                class="btn-editar"
-                (click)="abrirFormularioEditar(persona)">
-                Editar
-              </button>
+              @if (authService.tieneRol('ROOT', 'ADMIN')) {
+                <button
+                  type="button"
+                  class="btn-editar"
+                  (click)="abrirFormularioEditar(persona)">
+                  Editar
+                </button>
 
-              <button
-                type="button"
-                class="btn-eliminar"
-                (click)="confirmarEliminar(persona)">
-                Eliminar
-              </button>
+                <button
+                  type="button"
+                  class="btn-eliminar"
+                  (click)="confirmarEliminar(persona)">
+                  Eliminar
+                </button>
+              }
             </td>
           </tr>
 

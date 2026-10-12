@@ -23,9 +23,41 @@ public class DataInitializer {
 
                 usuarioRepository.save(
                         new Usuario(
+                                "root",
+                                passwordEncoder.encode("1234"),
+                                Rol.ROOT
+                        )
+                );
+
+                usuarioRepository.save(
+                        new Usuario(
                                 "admin",
                                 passwordEncoder.encode("1234"),
                                 Rol.ADMIN
+                        )
+                );
+
+                usuarioRepository.save(
+                        new Usuario(
+                                "director",
+                                passwordEncoder.encode("1234"),
+                                Rol.DIRECTOR
+                        )
+                );
+
+                usuarioRepository.save(
+                        new Usuario(
+                                "secretaria",
+                                passwordEncoder.encode("1234"),
+                                Rol.SECRETARIA
+                        )
+                );
+
+                usuarioRepository.save(
+                        new Usuario(
+                                "preceptor",
+                                passwordEncoder.encode("1234"),
+                                Rol.PRECEPTOR
                         )
                 );
 
@@ -39,9 +71,9 @@ public class DataInitializer {
 
                 usuarioRepository.save(
                         new Usuario(
-                                "secretaria",
+                                "administrativo",
                                 passwordEncoder.encode("1234"),
-                                Rol.SECRETARIA
+                                Rol.ADMINISTRATIVO
                         )
                 );
             }

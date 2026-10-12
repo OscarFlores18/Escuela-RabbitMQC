@@ -1,6 +1,9 @@
 import { Component, ChangeDetectorRef, OnInit  } from '@angular/core';import { ReactiveFormsModule } from '@angular/forms';
 import { AlumnoService } from '../../services/alumno.service';
 import { Alumno } from '../../models/alumno';
+import { CursoService } from '../../services/curso.service';
+import { Curso } from '../../models/curso';
+import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -13,9 +16,12 @@ import Swal from 'sweetalert2';
 export class Alumnos implements OnInit {
 
   alumnos: Alumno[] = [];
+  private mapaCursoPorAlumno = new Map<number, string>();
 
   constructor(
     private alumnoService: AlumnoService,
+    private cursoService: CursoService,
+    public authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {
     console.log('🔥 ALUMNOS COMPONENTE CREADO');
@@ -24,6 +30,31 @@ export class Alumnos implements OnInit {
   ngOnInit(): void {
     console.log('🔥 EJECUTANDO CARGAR ALUMNOS');
     this.cargarAlumnos();
+    this.cargarCursos();
+  }
+
+  // Relacion alumno -> curso: los cursos traen los ids de sus alumnos inscriptos.
+  cargarCursos(): void {
+    this.cursoService.obtenerCursos().subscribe({
+      next: (cursos) => {
+        const mapa = new Map<number, string>();
+        cursos.forEach((curso) => {
+          const etiqueta = `${curso.grado} ${curso.division} - ${curso.materia}`;
+          (curso.alumnoIds ?? []).forEach((alumnoId) => {
+            mapa.set(alumnoId, etiqueta);
+          });
+        });
+        this.mapaCursoPorAlumno = mapa;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al obtener cursos:', error);
+      }
+    });
+  }
+
+  cursoDe(alumnoId: number): string {
+    return this.mapaCursoPorAlumno.get(alumnoId) ?? '—';
   }
 
   cargarAlumnos(): void {

@@ -5,5 +5,8 @@ public record CursoModificarDTO(
     String division,
     String grado,
     String turno,
-    String cupo_maximo
+    String materia,
+    String horario,
+    Integer cupo_maximo,
+    Long docenteId
 ) {}

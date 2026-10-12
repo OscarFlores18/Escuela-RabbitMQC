@@ -13,9 +13,9 @@
     <div class="nav-links">
 
       @if (
-        authService.obtenerRol() === 'ADMIN' ||
-        authService.obtenerRol() === 'DOCENTE' ||
-        authService.obtenerRol() === 'SECRETARIA'
+        authService.tieneRol(
+          'ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'
+        )
       ) {
 
         <a
@@ -32,8 +32,9 @@
 
 
       @if (
-        authService.obtenerRol() === 'ADMIN' ||
-        authService.obtenerRol() === 'DOCENTE'
+        authService.tieneRol(
+          'ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'
+        )
       ) {
 
         <a
@@ -49,7 +50,26 @@
       }
 
 
-      @if (authService.obtenerRol() === 'ADMIN') {
+      @if (
+        authService.tieneRol(
+          'ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'
+        )
+      ) {
+
+        <a
+          routerLink="/notas"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }">
+
+          <span class="nav-icon">📝</span>
+          <span>Notas</span>
+
+        </a>
+
+      }
+
+
+      @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'ADMINISTRATIVO')) {
 
         <a
           routerLink="/administracion"
@@ -58,6 +78,21 @@
 
           <span class="nav-icon">⚙️</span>
           <span>Administración</span>
+
+        </a>
+
+      }
+
+
+      @if (authService.tieneRol('ROOT', 'ADMIN')) {
+
+        <a
+          routerLink="/usuarios"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }">
+
+          <span class="nav-icon">🔑</span>
+          <span>Usuarios</span>
 
         </a>
 

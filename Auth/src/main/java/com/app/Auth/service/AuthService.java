@@ -3,6 +3,7 @@ package com.app.Auth.service;
 import com.app.Auth.dto.LoginRequest;
 import com.app.Auth.dto.LoginResponse;
 import com.app.Auth.entity.Usuario;
+import com.app.Auth.exception.CredencialesInvalidasException;
 import com.app.Auth.repository.UsuarioRepository;
 import com.app.Auth.security.JwtService;
 
@@ -31,13 +32,13 @@ public class AuthService {
         Usuario usuario = usuarioRepository
                 .findByUsername(request.getUsername())
                 .orElseThrow(() ->
-                        new RuntimeException("Usuario o contraseña incorrectos"));
+                        new CredencialesInvalidasException("Usuario o contraseña incorrectos"));
 
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 usuario.getPassword())) {
 
-            throw new RuntimeException(
+            throw new CredencialesInvalidasException(
                     "Usuario o contraseña incorrectos");
         }
 

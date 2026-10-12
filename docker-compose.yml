@@ -19,6 +19,7 @@ services:
       - "8888:8888"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_INTERNAL_SECRET: "${GATEWAY_INTERNAL_SECRET:?Defina GATEWAY_INTERNAL_SECRET en .env}"
     depends_on:
       registry:
         condition: service_started
@@ -43,6 +44,25 @@ services:
     networks:
       - escuela-network
 
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - escuela-network
+
   auth:
     build:
       context: ./Auth
@@ -51,10 +71,14 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: prod
+      JWT_SECRET: "${JWT_SECRET:?Defina JWT_SECRET en .env}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
     depends_on:
       registry:
         condition: service_started
+      mysql:
+        condition: service_healthy
     networks:
       - escuela-network
 
@@ -66,7 +90,8 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: prod
+      JWT_SECRET: "${JWT_SECRET:?Defina JWT_SECRET en .env}"
     depends_on:
       registry:
         condition: service_started
@@ -99,7 +124,8 @@ services:
     ports:
       - "8084:8084"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: prod
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
     depends_on:
       registry:
         condition: service_started
@@ -107,6 +133,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_started
+      mysql:
+        condition: service_healthy
     networks:
       - escuela-network
 
@@ -118,7 +146,8 @@ services:
     ports:
       - "8083:8083"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: prod
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
     depends_on:
       registry:
         condition: service_started
@@ -126,6 +155,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_started
+      mysql:
+        condition: service_healthy
     networks:
       - escuela-network
 
@@ -137,11 +168,34 @@ services:
     ports:
       - "8085:8085"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: prod
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
     depends_on:
       registry:
         condition: service_started
       configserver:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    networks:
+      - escuela-network
+
+  notas:
+    build:
+      context: ./Notas
+      dockerfile: Dockerfile
+    container_name: notas
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
+    depends_on:
+      registry:
+        condition: service_started
+      configserver:
+        condition: service_healthy
+      mysql:
         condition: service_healthy
     networks:
       - escuela-network
@@ -166,3 +220,6 @@ services:
 networks:
   escuela-network:
     driver: bridge
+
+volumes:
+  mysql-data:

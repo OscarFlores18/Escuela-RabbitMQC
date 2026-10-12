@@ -1,6 +1,7 @@
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { AdministracionService } from '../../services/administracion.service';
 import { Personal } from '../../models/personal';
+import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -15,6 +16,7 @@ export class Administracion implements OnInit {
 
 constructor(
   private administracionService: AdministracionService,
+  public authService: AuthService,
   private cdr: ChangeDetectorRef
 ) {}
 

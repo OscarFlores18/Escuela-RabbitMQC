@@ -25,7 +25,10 @@ public class Curso {
     private String division;
     private String grado;
     private String turno;
-    private String cupo_maximo;
+    private String materia;
+    private String horario;
+    private Integer cupo_maximo;
+    private Long docenteId;
 
     @OneToOne(mappedBy = "curso", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Personal docente;
@@ -79,12 +82,46 @@ public class Curso {
         this.turno = turno;
     }
 
-    public String getCupo_maximo() {
+    public String getMateria() {
+        return materia;
+    }
+
+    public void setMateria(String materia) {
+        this.materia = materia;
+    }
+
+    public String getHorario() {
+        return horario;
+    }
+
+    public void setHorario(String horario) {
+        this.horario = horario;
+    }
+
+    public Integer getCupo_maximo() {
         return cupo_maximo;
     }
 
-    public void setCupo_maximo(String cupo_maximo) {
+    public void setCupo_maximo(Integer cupo_maximo) {
         this.cupo_maximo = cupo_maximo;
+    }
+
+    public Long getDocenteId() {
+        return docenteId;
+    }
+
+    public void setDocenteId(Long docenteId) {
+        this.docenteId = docenteId;
+    }
+
+    // Cantidad de alumnos inscriptos actualmente
+    public int getCantidadAlumnos() {
+        return alumnos != null ? alumnos.size() : 0;
+    }
+
+    // Control de cupo: hay lugar si no se definio cupo o aun no se alcanzo el maximo
+    public boolean hayCupoDisponible() {
+        return cupo_maximo == null || getCantidadAlumnos() < cupo_maximo;
     }
 
     public Personal getDocente() {

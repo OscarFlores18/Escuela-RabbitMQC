@@ -3,7 +3,11 @@ package com.app.security;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.List;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -14,7 +18,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class GatewaySecretFilter extends OncePerRequestFilter {
 
-    private static final String HEADER = "X-Gateway-Secret";
+    private static final String SECRET_HEADER = "X-Gateway-Secret";
+    private static final String ROLE_HEADER = "X-Gateway-Role";
 
     private final String gatewaySecret;
 
@@ -29,7 +34,7 @@ public class GatewaySecretFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        String recibido = request.getHeader(HEADER);
+        String recibido = request.getHeader(SECRET_HEADER);
 
         if (!esValido(recibido)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -39,6 +44,20 @@ public class GatewaySecretFilter extends OncePerRequestFilter {
                     "{\"error\":\"Peticion directa al microservicio denegada. Debe tramitarse a traves del Gateway.\"}"
             );
             return;
+        }
+
+        // El Gateway ya valido el JWT: levantamos la identidad desde el rol
+        // que propaga en X-Gateway-Role.
+        String rol = request.getHeader(ROLE_HEADER);
+
+        if (StringUtils.hasText(rol)) {
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            "gateway",
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_" + rol))
+                    );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);

@@ -3,6 +3,7 @@ package com.app.service;
 import com.app.config.RabbitMQConfig;
 import com.app.dto.AlumnoConCursoDTO;
 import com.app.dto.AlumnoModificarDTO;
+import com.app.exception.RecursoNoEncontradoException;
 import com.app.model.Alumno;
 import com.app.repository.AlumnoRepository;
 import com.app.senders.AlumnoEvent;
@@ -25,6 +26,8 @@ public class AlumnoServiceImpl implements AlumnoService {
 
     @Override
     public Alumno altaAlumno(Alumno alumno, Long cursoId) {
+        alumno.setId(null); // el alta nunca acepta un id externo — lo genera la base
+        alumno.setActivo(true);
         Alumno nuevo = alumnoRepository.save(alumno);
 
         if (cursoId != null) {
@@ -44,13 +47,14 @@ public class AlumnoServiceImpl implements AlumnoService {
 
     @Override
     public List<Alumno> listarAlumnos() {
-        return alumnoRepository.findAll();
+        return alumnoRepository.findByActivoTrue();
     }
 
     @Override
     public AlumnoConCursoDTO obtenerConCurso(Long alumnoId) {
-        Alumno alumno = alumnoRepository.findById(alumnoId)
-                .orElseThrow(() -> new RuntimeException("Alumno no encontrado con id: " + alumnoId));
+        Alumno alumno = alumnoRepository.findByIdAndActivoTrue(alumnoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "Alumno no encontrado con id: " + alumnoId));
 
         AlumnoConCursoDTO dto = new AlumnoConCursoDTO();
         dto.setId(alumno.getId());
@@ -61,14 +65,14 @@ public class AlumnoServiceImpl implements AlumnoService {
 
         return dto;
     }
-    
-    
+
+
     @Override
     public Optional<Alumno> modificarAlumno(
             Long id,
             AlumnoModificarDTO dto) {
 
-        return alumnoRepository.findById(id)
+        return alumnoRepository.findByIdAndActivoTrue(id)
             .map(alumno -> {
                 alumno.setNombre(dto.nombre());
                 alumno.setApellido(dto.apellido());
@@ -81,13 +85,15 @@ public class AlumnoServiceImpl implements AlumnoService {
 
     @Override
     public boolean eliminarAlumno(Long id) {
-
-        if (!alumnoRepository.existsById(id)) {
-            return false;
-        }
-
-        alumnoRepository.deleteById(id);
-        return true;
+        // Baja logica: marca inactivo en lugar de borrar la fila
+        return alumnoRepository.findById(id)
+            .filter(Alumno::isActivo)
+            .map(alumno -> {
+                alumno.setActivo(false);
+                alumnoRepository.save(alumno);
+                return true;
+            })
+            .orElse(false);
     }
-    
+
 }

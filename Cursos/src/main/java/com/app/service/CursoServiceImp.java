@@ -10,6 +10,8 @@ import com.app.client.DocenteClient;
 import com.app.dto.CursoConDocenteDTO;
 import com.app.dto.CursoModificarDTO;
 import com.app.dto.DocenteDTO;
+import com.app.exception.CupoExcedidoException;
+import com.app.exception.RecursoNoEncontradoException;
 import com.app.model.Alumno;
 import com.app.model.Curso;
 import com.app.repository.AlumnoRepository;
@@ -51,7 +53,16 @@ public class CursoServiceImp implements CursoService {
 	@Override
 	@Transactional
 	public void registrarALumno(long idCurso, long idAlumno) {
-		Curso curso =this.cursoRepository.findById(idCurso).get();
+		Curso curso = this.cursoRepository.findById(idCurso)
+				.orElseThrow(() -> new RecursoNoEncontradoException(
+						"Curso no encontrado con id: " + idCurso));
+
+		// Control de cupo: no se pueden inscribir mas alumnos que el cupo maximo
+		if (!curso.hayCupoDisponible()) {
+			throw new CupoExcedidoException(
+					"El curso alcanzo su cupo maximo de " + curso.getCupo_maximo() + " alumnos");
+		}
+
 		Alumno alumno = new Alumno();
 		alumno.setId(idAlumno);
 		curso.addAlumno(alumno);
@@ -59,10 +70,16 @@ public class CursoServiceImp implements CursoService {
 	}
 
 	@Override
+	@Transactional
 	public void sacarALumno(long idCurso, long idAlumno) {
-		Curso curso =this.cursoRepository.findById(idCurso).get();
-		Alumno alumno = this.alumnoRepository.findById(idAlumno).get();
+		Curso curso = this.cursoRepository.findById(idCurso)
+				.orElseThrow(() -> new RecursoNoEncontradoException(
+						"Curso no encontrado con id: " + idCurso));
+		Alumno alumno = this.alumnoRepository.findById(idAlumno)
+				.orElseThrow(() -> new RecursoNoEncontradoException(
+						"Alumno no encontrado con id: " + idAlumno));
 		curso.removeAlumno(alumno);
+		this.cursoRepository.save(curso);
 	}
 	
 	@Override
@@ -72,7 +89,10 @@ public class CursoServiceImp implements CursoService {
 	        curso.setDivision(dto.division());
 	        curso.setGrado(dto.grado());
 	        curso.setTurno(dto.turno());
+	        curso.setMateria(dto.materia());
+	        curso.setHorario(dto.horario());
 	        curso.setCupo_maximo(dto.cupo_maximo());
+	        curso.setDocenteId(dto.docenteId());
 
 	        return cursoRepository.save(curso);
 	    });

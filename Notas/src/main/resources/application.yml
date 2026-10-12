@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: modulo-notas
+  profiles:
+    default: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: "configserver:http://localhost:8888"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+    import: "configserver:http://configserver:8888"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: "configserver:http://configserver:8888"

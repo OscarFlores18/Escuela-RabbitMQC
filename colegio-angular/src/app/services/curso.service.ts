@@ -27,4 +27,12 @@ export class CursoService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
+  inscribirAlumno(cursoId: number, alumnoId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${cursoId}/alumnos/${alumnoId}`, {});
+  }
+
+  quitarAlumno(cursoId: number, alumnoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${cursoId}/alumnos/${alumnoId}`);
+  }
+
 }

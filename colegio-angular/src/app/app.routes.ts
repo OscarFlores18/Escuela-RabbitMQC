@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
 import { Alumnos } from './components/alumnos/alumnos';
 import { Cursos } from './components/cursos/cursos';
+import { Notas } from './components/notas/notas';
 import { Administracion } from './components/administracion/administracion';
+import { Usuarios } from './components/usuarios/usuarios';
 import { Login } from './components/login/login';
 import { authGuard } from './guards/auth-guard';
 import { roleGuard } from './guards/role-guard';
@@ -18,7 +20,7 @@ export const routes: Routes = [
     component: Alumnos,
     canActivate: [
       authGuard,
-      roleGuard(['ADMIN', 'DOCENTE', 'SECRETARIA'])
+      roleGuard(['ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'])
     ]
   },
 
@@ -27,7 +29,16 @@ export const routes: Routes = [
     component: Cursos,
     canActivate: [
       authGuard,
-      roleGuard(['ADMIN', 'DOCENTE'])
+      roleGuard(['ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'])
+    ]
+  },
+
+  {
+    path: 'notas',
+    component: Notas,
+    canActivate: [
+      authGuard,
+      roleGuard(['ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'])
     ]
   },
 
@@ -36,7 +47,16 @@ export const routes: Routes = [
     component: Administracion,
     canActivate: [
       authGuard,
-      roleGuard(['ADMIN'])
+      roleGuard(['ROOT', 'ADMIN', 'DIRECTOR', 'ADMINISTRATIVO'])
+    ]
+  },
+
+  {
+    path: 'usuarios',
+    component: Usuarios,
+    canActivate: [
+      authGuard,
+      roleGuard(['ROOT', 'ADMIN'])
     ]
   },
 

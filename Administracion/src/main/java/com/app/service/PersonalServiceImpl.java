@@ -19,23 +19,24 @@ public class PersonalServiceImpl implements PersonalService {
     @Override
     public Personal altaPersonal(Personal personal) {
         personal.setId(null); // el alta nunca acepta un id externo — lo genera la base
+        personal.setActivo(true);
         return personalRepository.save(personal);
     }
 
     @Override
     public List<Personal> listarPersonal() {
-        return personalRepository.findAll();
+        return personalRepository.findByActivoTrue();
     }
 
 	@Override
 	public Optional<Personal> obtenerPorId(Long id) {
-        return personalRepository.findById(id);
-	
+        return personalRepository.findByIdAndActivoTrue(id);
+
 	}
-	
+
 	@Override
 	public Optional<Personal> modificarPersonal(Long id, PersonalModificarDTO dto) {
-	    return personalRepository.findById(id).map(personal -> {
+	    return personalRepository.findByIdAndActivoTrue(id).map(personal -> {
 	        personal.setNombre(dto.nombre());
 	        personal.setApellido(dto.apellido());
 	        personal.setEmail(dto.email());
@@ -47,16 +48,15 @@ public class PersonalServiceImpl implements PersonalService {
 
 	@Override
 	public boolean eliminarPersonal(Long id) {
-	    if (!personalRepository.existsById(id)) {
-	        return false;
-	    }
-
-	    personalRepository.deleteById(id);
-	    return true;
+	    // Baja logica: marca inactivo en lugar de borrar la fila
+	    return personalRepository.findById(id)
+	        .filter(Personal::isActivo)
+	        .map(personal -> {
+	            personal.setActivo(false);
+	            personalRepository.save(personal);
+	            return true;
+	        })
+	        .orElse(false);
 	}
-	
-	
-	
-	
 
 }

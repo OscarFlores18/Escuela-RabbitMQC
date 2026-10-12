@@ -1,6 +1,9 @@
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CursoService } from '../../services/curso.service';
 import { Curso } from '../../models/curso';
+import { Personal } from '../../models/personal';
+import { AdministracionService } from '../../services/administracion.service';
+import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -12,14 +15,56 @@ import Swal from 'sweetalert2';
 export class Cursos implements OnInit {
 
   cursos: Curso[] = [];
+  docentes: Personal[] = [];
+  private mapaDocentes = new Map<number, string>();
 
   constructor(
     private cursoService: CursoService,
+    private administracionService: AdministracionService,
+    public authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.cargarCursos();
+    this.cargarDocentes();
+  }
+
+  cargarDocentes(): void {
+    this.administracionService.obtenerPersonalBasico().subscribe({
+      next: (data) => {
+        this.docentes = data;
+        this.mapaDocentes = new Map(
+          data.map((d) => [
+            d.id,
+            `${d.nombre} ${d.apellido}${d.cargo ? ' (' + d.cargo + ')' : ''}`
+          ])
+        );
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al obtener docentes:', error);
+      }
+    });
+  }
+
+  docenteDe(curso: Curso): string {
+    if (curso.docenteId == null) {
+      return '—';
+    }
+    return this.mapaDocentes.get(curso.docenteId) ?? `#${curso.docenteId}`;
+  }
+
+  private opcionesDocentes(seleccionado?: number): string {
+    const opciones = this.docentes
+      .map(
+        (d) =>
+          `<option value="${d.id}" ${d.id === seleccionado ? 'selected' : ''}>` +
+          `${d.nombre} ${d.apellido}${d.cargo ? ' (' + d.cargo + ')' : ''}</option>`
+      )
+      .join('');
+
+    return `<option value="">Sin docente</option>${opciones}`;
   }
 
   cargarCursos(): void {
@@ -67,10 +112,24 @@ export class Cursos implements OnInit {
           placeholder="Turno">
 
         <input
+          id="materia"
+          class="swal2-input"
+          placeholder="Materia">
+
+        <input
+          id="horario"
+          class="swal2-input"
+          placeholder="Horario">
+
+        <input
           id="cupo_maximo"
           class="swal2-input"
           placeholder="Cupo máximo"
           type="number">
+
+        <select id="docenteId" class="swal2-select">
+          ${this.opcionesDocentes()}
+        </select>
       `,
 
       confirmButtonText: 'Guardar curso',
@@ -92,18 +151,37 @@ export class Cursos implements OnInit {
         const turno =
           (document.getElementById('turno') as HTMLInputElement).value;
 
+        const materia =
+          (document.getElementById('materia') as HTMLInputElement).value;
+
+        const horario =
+          (document.getElementById('horario') as HTMLInputElement).value;
+
         const cupo_maximo =
           (document.getElementById('cupo_maximo') as HTMLInputElement).value;
+
+        const docenteId =
+          (document.getElementById('docenteId') as HTMLSelectElement).value;
 
         if (
           !ciclo_lectivo ||
           !division ||
           !grado ||
           !turno ||
+          !materia ||
+          !horario ||
           !cupo_maximo
         ) {
           Swal.showValidationMessage(
             'Completá todos los campos'
+          );
+
+          return false;
+        }
+
+        if (Number(cupo_maximo) <= 0) {
+          Swal.showValidationMessage(
+            'El cupo máximo debe ser mayor a 0'
           );
 
           return false;
@@ -114,7 +192,10 @@ export class Cursos implements OnInit {
           division,
           grado,
           turno,
-          cupo_maximo
+          materia,
+          horario,
+          cupo_maximo: Number(cupo_maximo),
+          docenteId: docenteId ? Number(docenteId) : null
         };
       }
 
@@ -142,8 +223,15 @@ abrirFormularioEditar(curso: Curso): void {
         placeholder="Grado" value="${curso.grado}">
       <input id="turno" class="swal2-input"
         placeholder="Turno" value="${curso.turno}">
+      <input id="materia" class="swal2-input"
+        placeholder="Materia" value="${curso.materia ?? ''}">
+      <input id="horario" class="swal2-input"
+        placeholder="Horario" value="${curso.horario ?? ''}">
       <input id="cupo_maximo" class="swal2-input"
         type="number" placeholder="Cupo máximo" value="${curso.cupo_maximo}">
+      <select id="docenteId" class="swal2-select">
+        ${this.opcionesDocentes(curso.docenteId)}
+      </select>
     `,
     showCancelButton: true,
     confirmButtonText: 'Guardar cambios',
@@ -158,15 +246,36 @@ abrirFormularioEditar(curso: Curso): void {
         (document.getElementById('grado') as HTMLInputElement).value.trim();
       const turno =
         (document.getElementById('turno') as HTMLInputElement).value.trim();
+      const materia =
+        (document.getElementById('materia') as HTMLInputElement).value.trim();
+      const horario =
+        (document.getElementById('horario') as HTMLInputElement).value.trim();
       const cupo_maximo =
         (document.getElementById('cupo_maximo') as HTMLInputElement).value.trim();
 
-      if (!ciclo_lectivo || !division || !grado || !turno || !cupo_maximo) {
+      const docenteId =
+        (document.getElementById('docenteId') as HTMLSelectElement).value;
+
+      if (!ciclo_lectivo || !division || !grado || !turno || !materia || !horario || !cupo_maximo) {
         Swal.showValidationMessage('Completá todos los campos');
         return false;
       }
 
-      return { ciclo_lectivo, division, grado, turno, cupo_maximo };
+      if (Number(cupo_maximo) <= 0) {
+        Swal.showValidationMessage('El cupo máximo debe ser mayor a 0');
+        return false;
+      }
+
+      return {
+        ciclo_lectivo,
+        division,
+        grado,
+        turno,
+        materia,
+        horario,
+        cupo_maximo: Number(cupo_maximo),
+        docenteId: docenteId ? Number(docenteId) : null
+      };
     }
   }).then((resultado) => {
     if (resultado.isConfirmed && resultado.value) {
@@ -213,6 +322,77 @@ confirmarEliminar(curso: Curso): void {
     }
   });
 }
+
+  abrirInscribir(curso: Curso): void {
+    Swal.fire({
+      title: 'Inscribir alumno',
+      input: 'number',
+      inputLabel: `Curso ${curso.grado} ${curso.division} - Materia ${curso.materia}`,
+      inputPlaceholder: 'ID del alumno',
+      showCancelButton: true,
+      confirmButtonText: 'Inscribir',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value || Number(value) <= 0) {
+          return 'Ingresá un ID de alumno válido';
+        }
+        return null;
+      }
+    }).then((resultado) => {
+      if (resultado.isConfirmed && resultado.value) {
+        this.cursoService.inscribirAlumno(curso.id, Number(resultado.value)).subscribe({
+          next: () => {
+            Swal.fire('¡Inscripto!', 'El alumno fue inscrito en el curso.', 'success');
+            this.cargarCursos();
+          },
+          error: (error) => {
+            console.error('Error al inscribir alumno:', error);
+            const mensaje = error.status === 409
+              ? 'No hay cupo disponible en este curso.'
+              : error.status === 404
+                ? 'No se encontró el curso o el alumno.'
+                : 'No se pudo inscribir al alumno.';
+            Swal.fire('Error', mensaje, 'error');
+          }
+        });
+      }
+    });
+  }
+
+  abrirQuitar(curso: Curso): void {
+    Swal.fire({
+      title: 'Quitar alumno',
+      input: 'number',
+      inputLabel: `Curso ${curso.grado} ${curso.division} - Materia ${curso.materia}`,
+      inputPlaceholder: 'ID del alumno',
+      showCancelButton: true,
+      confirmButtonText: 'Quitar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      inputValidator: (value) => {
+        if (!value || Number(value) <= 0) {
+          return 'Ingresá un ID de alumno válido';
+        }
+        return null;
+      }
+    }).then((resultado) => {
+      if (resultado.isConfirmed && resultado.value) {
+        this.cursoService.quitarAlumno(curso.id, Number(resultado.value)).subscribe({
+          next: () => {
+            Swal.fire('Eliminado', 'El alumno fue quitado del curso.', 'success');
+            this.cargarCursos();
+          },
+          error: (error) => {
+            console.error('Error al quitar alumno:', error);
+            const mensaje = error.status === 404
+              ? 'No se encontró el curso o el alumno en el curso.'
+              : 'No se pudo quitar al alumno.';
+            Swal.fire('Error', mensaje, 'error');
+          }
+        });
+      }
+    });
+  }
 
   crearCurso(curso: Curso): void {
 

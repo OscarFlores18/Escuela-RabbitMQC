@@ -16,6 +16,12 @@ export class AdministracionService {
     return this.http.get<Personal[]>(this.apiUrl);
   }
 
+  // Listado basico de personal: disponible para cualquier usuario interno
+  // (se usa para mostrar/asignar docentes en los cursos).
+  obtenerPersonalBasico(): Observable<Personal[]> {
+    return this.http.get<Personal[]>(`${this.apiUrl}/basico`);
+  }
+
   crearPersonal(personal: Personal): Observable<Personal> {
     return this.http.post<Personal>(this.apiUrl, personal);
   }

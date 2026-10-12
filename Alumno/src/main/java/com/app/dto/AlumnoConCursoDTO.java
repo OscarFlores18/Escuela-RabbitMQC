@@ -10,7 +10,6 @@ public class AlumnoConCursoDTO {
     private CursoDTO curso;
 	
     
-    AlumnoConCursoDTO dto = new AlumnoConCursoDTO();
 
     
     

@@ -33,5 +33,5 @@ eureka:
     lease-renewal-interval-in-seconds: 10
 
 jwt:
-  secret: "implementacionspringsecurity-tilin"
+  secret: ${JWT_SECRET}
   expiration: 3600
