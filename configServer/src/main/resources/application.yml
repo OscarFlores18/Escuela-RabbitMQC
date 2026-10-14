@@ -8,8 +8,6 @@ spring:
           uri: https://github.com/OscarFlores18/PropertiesEscuela
           clone-on-start: true
           default-label: main
-        overrides:
-          gateway.internal-secret: ${GATEWAY_INTERNAL_SECRET}
 server:
   port: 8888
 ---

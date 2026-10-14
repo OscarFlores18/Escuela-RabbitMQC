@@ -1,6 +1,5 @@
 package com.app.security;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -12,17 +11,14 @@ import org.springframework.security.web.context.SecurityContextHolderFilter;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * El microservicio NO valida el JWT: confia en el Gateway. Verificamos que la
- * peticion venga del Gateway (X-Gateway-Secret) y levantamos la identidad a
- * partir del rol que el Gateway propaga (X-Gateway-Role). La autorizacion fina
- * por operacion se define con @PreAuthorize.
+ * El microservicio NO valida el JWT: confia en el Gateway, que es el unico que
+ * puede alcanzarlo (los puertos no se exponen al exterior). El Gateway ya valido
+ * el JWT y propaga el rol en X-Gateway-Role; aqui levantamos la identidad desde
+ * ese header. La autorizacion fina por operacion se define con @PreAuthorize.
  */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
-
-    @Value("${gateway.internal-secret}")
-    private String gatewaySecret;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,7 +30,7 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             .addFilterAfter(
-                    new GatewaySecretFilter(gatewaySecret),
+                    new GatewayRoleFilter(),
                     SecurityContextHolderFilter.class
             )
 

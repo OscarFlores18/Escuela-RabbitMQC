@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -68,6 +69,11 @@ public class GatewaySecurityConfig {
 
         http
             .csrf(csrf -> csrf.disable())
+
+            // CORS a nivel de Spring Security: asi los 401 (p.ej. token
+            // invalido) tambien llevan headers CORS y el navegador puede
+            // leerlos en vez de mostrar un falso error de CORS.
+            .cors(Customizer.withDefaults())
 
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

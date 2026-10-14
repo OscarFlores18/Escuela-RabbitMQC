@@ -19,7 +19,6 @@ services:
       - "8888:8888"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      GATEWAY_INTERNAL_SECRET: "${GATEWAY_INTERNAL_SECRET:?Defina GATEWAY_INTERNAL_SECRET en .env}"
     depends_on:
       registry:
         condition: service_started
@@ -121,8 +120,6 @@ services:
       context: ./Alumno
       dockerfile: Dockerfile
     container_name: alumno
-    ports:
-      - "8084:8084"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
@@ -143,8 +140,6 @@ services:
       context: ./Cursos
       dockerfile: Dockerfile
     container_name: cursos
-    ports:
-      - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
@@ -165,8 +160,6 @@ services:
       context: ./Administracion
       dockerfile: Dockerfile
     container_name: administracion
-    ports:
-      - "8085:8085"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
@@ -185,8 +178,6 @@ services:
       context: ./Notas
       dockerfile: Dockerfile
     container_name: notas
-    ports:
-      - "8086:8086"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}"
