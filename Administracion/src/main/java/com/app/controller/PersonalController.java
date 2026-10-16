@@ -35,7 +35,7 @@ public class PersonalController {
 
 	// Gestion de personal: solo administracion/root
 	@PostMapping
-	@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@PreAuthorize("hasAnyRole('ROOT','ADMIN','PRECEPTOR')")
 	public ResponseEntity<PersonalSalidaDTO> altaPersonal(@RequestBody PersonalAltaDTO dto) {
 	    Personal nuevo = new Personal();
 	    nuevo.setNombre(dto.nombre());
@@ -48,7 +48,7 @@ public class PersonalController {
 	}
 
 	@GetMapping
-	@PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR','ADMINISTRATIVO')")
+	@PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','PRECEPTOR')")
 	public ResponseEntity<List<PersonalSalidaDTO>> listarPersonal() {
 		List<PersonalSalidaDTO> personal = personalService.listarPersonal()
 				.stream()
@@ -59,7 +59,7 @@ public class PersonalController {
 	}
 
 	@GetMapping("/{id}")
-	@PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR','ADMINISTRATIVO')")
+	@PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','PRECEPTOR')")
 	    public ResponseEntity<PersonalSalidaDTO> obtenerPorId(@PathVariable Long id) {
 	        return personalService.obtenerPorId(id)
 	                .map(PersonalSalidaDTO::from)
@@ -81,7 +81,7 @@ public class PersonalController {
 
 
 	@PutMapping("/{id}")
-	@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@PreAuthorize("hasAnyRole('ROOT','ADMIN','PRECEPTOR')")
 	public ResponseEntity<PersonalSalidaDTO> modificarPersonal(
 	        @PathVariable Long id,
 	        @RequestBody PersonalModificarDTO dto) {
@@ -93,7 +93,7 @@ public class PersonalController {
 	}
 
 	@DeleteMapping("/{id}")
-	@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@PreAuthorize("hasAnyRole('ROOT','ADMIN','PRECEPTOR')")
 	public ResponseEntity<Void> eliminarPersonal(@PathVariable Long id) {
 	    if (!personalService.eliminarPersonal(id)) {
 	        return ResponseEntity.notFound().build();

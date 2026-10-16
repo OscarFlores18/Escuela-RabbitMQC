@@ -26,7 +26,7 @@ public class CursoController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR','SECRETARIA')")
+    @PreAuthorize("hasAnyRole('ROOT','PRECEPTOR','ADMIN')")
     public ResponseEntity<CursoSalidaDTO> altaCursos(@RequestBody CursoAltaDTO dto) {
         Curso nuevo = new Curso();
         nuevo.setCiclo_lectivo(dto.ciclo_lectivo());
@@ -42,7 +42,7 @@ public class CursoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR','SECRETARIA','PRECEPTOR','DOCENTE')")
+    @PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','DOCENTE','PRECEPTOR','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<List<CursoSalidaDTO>> listarCursos() {
         List<CursoSalidaDTO> cursos = cursoService.listarCursos()
                 .stream()
@@ -53,7 +53,7 @@ public class CursoController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR','SECRETARIA','PRECEPTOR','DOCENTE')")
+    @PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','DOCENTE','PRECEPTOR','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<CursoSalidaDTO> obtenerPorId(@PathVariable Long id) {
         return cursoService.obtenerPorId(id)
                 .map(CursoSalidaDTO::from)
@@ -62,51 +62,34 @@ public class CursoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR','SECRETARIA')")
+    @PreAuthorize("denyAll()")
     public ResponseEntity<CursoSalidaDTO> modificarCurso(
             @PathVariable Long id,
             @RequestBody CursoModificarDTO dto) {
-
-        return cursoService.modificarCurso(id, dto)
-                .map(CursoSalidaDTO::from)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR')")
+    @PreAuthorize("denyAll()")
     public ResponseEntity<String> eliminarCurso(@PathVariable Long id) {
-        boolean eliminado = cursoService.eliminarCurso(id);
-
-        if (!eliminado) {
-            // Si no existe o tiene alumnos, no se elimina.
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("No se pudo eliminar: el curso no existe o tiene alumnos asociados.");
-        }
-
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    // Inscribir un alumno en el curso (controla el cupo maximo)
+    // Inscribir/Quitar alumno: denegado segun requerimiento
     @PostMapping("/{cursoId}/alumnos/{alumnoId}")
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR','SECRETARIA')")
+    @PreAuthorize("denyAll()")
     public ResponseEntity<Void> inscribirAlumno(
             @PathVariable Long cursoId,
             @PathVariable Long alumnoId) {
-
-        cursoService.registrarALumno(cursoId, alumnoId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    // Quitar un alumno del curso
     @DeleteMapping("/{cursoId}/alumnos/{alumnoId}")
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR')")
+    @PreAuthorize("denyAll()")
     public ResponseEntity<Void> quitarAlumno(
             @PathVariable Long cursoId,
             @PathVariable Long alumnoId) {
-
-        cursoService.sacarALumno(cursoId, alumnoId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
 }

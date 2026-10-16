@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Usuario } from '../models/usuario';
@@ -7,6 +7,7 @@ export interface UsuarioPayload {
   username: string;
   password?: string;
   rol: string;
+  personalId?: number;
 }
 
 @Injectable({
@@ -33,5 +34,4 @@ export class UsuarioService {
   eliminarUsuario(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
-
 }

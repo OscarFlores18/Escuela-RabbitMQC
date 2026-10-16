@@ -20,6 +20,9 @@ public class Usuario {
     @Column(nullable = false)
     private Rol rol;
 
+    @Column(name = "personal_id")
+    private Long personalId;
+
     public Usuario() {
     }
 
@@ -27,6 +30,13 @@ public class Usuario {
         this.username = username;
         this.password = password;
         this.rol = rol;
+    }
+
+    public Usuario(String username, String password, Rol rol, Long personalId) {
+        this.username = username;
+        this.password = password;
+        this.rol = rol;
+        this.personalId = personalId;
     }
 
     public Long getId() {
@@ -55,5 +65,13 @@ public class Usuario {
 
     public void setRol(Rol rol) {
         this.rol = rol;
+    }
+
+    public Long getPersonalId() {
+        return personalId;
+    }
+
+    public void setPersonalId(Long personalId) {
+        this.personalId = personalId;
     }
 }

@@ -79,7 +79,23 @@ public class AlumnoServiceImpl implements AlumnoService {
                 alumno.setDni(dto.dni());
                 alumno.setEmail(dto.email());
 
-                return alumnoRepository.save(alumno);
+                Alumno guardado = alumnoRepository.save(alumno);
+
+                // Si se indica un curso, se registra la relacion alumno-curso
+                // mediante el mismo evento usado en el alta.
+                if (dto.cursoId() != null) {
+                    AlumnoEvent event = new AlumnoEvent();
+                    event.setIdAlumno(guardado.getId());
+                    event.setIdCurso(dto.cursoId());
+
+                    rabbitTemplate.convertAndSend(
+                        RabbitMQConfig.EXCHANGE,
+                        RabbitMQConfig.ROUTING_KEY,
+                        event
+                    );
+                }
+
+                return guardado;
             });
     }
 

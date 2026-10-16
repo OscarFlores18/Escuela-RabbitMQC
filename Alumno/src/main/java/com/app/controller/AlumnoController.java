@@ -27,9 +27,9 @@ public class AlumnoController {
         this.alumnoService = alumnoService;
     }
 
-    // Alta de alumno: solo gestion academica/administrativa
+    // Alta de alumno: solo preceptor
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','SECRETARIA','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('PRECEPTOR','ADMIN','ROOT')")
     public ResponseEntity<AlumnoSalidaDTO> altaAlumno(@RequestBody AlumnoAltaDTO dto) {
         Alumno nuevo = new Alumno();
         nuevo.setNombre(dto.nombre());
@@ -40,9 +40,9 @@ public class AlumnoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(AlumnoSalidaDTO.from(creado));
     }
 
-    // Lectura: cualquier rol interno autenticado
+    // Lectura: root, director, docente, preceptor
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR','SECRETARIA','PRECEPTOR','DOCENTE')")
+    @PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','DOCENTE','PRECEPTOR','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<List<AlumnoSalidaDTO>> listarAlumnos() {
         List<AlumnoSalidaDTO> alumnos = alumnoService.listarAlumnos()
                 .stream()
@@ -53,13 +53,13 @@ public class AlumnoController {
     }
 
     @GetMapping("/{id}/con-curso")
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','DIRECTOR','SECRETARIA','PRECEPTOR','DOCENTE')")
+    @PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','DOCENTE','PRECEPTOR','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<AlumnoConCursoDTO> obtenerConCurso(@PathVariable Long id) {
         return ResponseEntity.ok(alumnoService.obtenerConCurso(id));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','SECRETARIA','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('PRECEPTOR','ADMIN','ROOT')")
     public ResponseEntity<AlumnoSalidaDTO> modificarAlumno(
             @PathVariable Long id,
             @RequestBody AlumnoModificarDTO dto) {
@@ -71,7 +71,7 @@ public class AlumnoController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','ROOT','SECRETARIA','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('PRECEPTOR','ADMIN','ROOT')")
     public ResponseEntity<Void> eliminarAlumno(
             @PathVariable Long id) {
 

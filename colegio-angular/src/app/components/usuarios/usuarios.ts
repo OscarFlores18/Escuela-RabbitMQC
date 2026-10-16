@@ -1,18 +1,26 @@
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { UsuarioService, UsuarioPayload } from '../../services/usuario.service';
 import { Usuario } from '../../models/usuario';
+import { AdministracionService } from '../../services/administracion.service';
+import { Personal } from '../../models/personal';
 import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
+
+type Vista = 'registrados' | 'sin-cuenta';
 
 @Component({
   selector: 'app-usuarios',
   standalone: true,
+  imports: [],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.css'
 })
 export class Usuarios implements OnInit {
 
   usuarios: Usuario[] = [];
+  personal: Personal[] = [];
+
+  vista: Vista = 'registrados';
 
   roles: string[] = [
     'ROOT',
@@ -26,12 +34,23 @@ export class Usuarios implements OnInit {
 
   constructor(
     private usuarioService: UsuarioService,
+    private administracionService: AdministracionService,
     public authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.cargarTodo();
+  }
+
+  // ROOT es el unico que puede administrar cuentas.
+  get esRoot(): boolean {
+    return this.authService.tieneRol('ROOT');
+  }
+
+  cargarTodo(): void {
     this.cargarUsuarios();
+    this.cargarPersonal();
   }
 
   cargarUsuarios(): void {
@@ -52,23 +71,82 @@ export class Usuarios implements OnInit {
     });
   }
 
+  cargarPersonal(): void {
+    this.administracionService.obtenerPersonal().subscribe({
+      next: (data) => {
+        this.personal = data;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al obtener personal:', error);
+      }
+    });
+  }
+
+  cambiarVista(vista: Vista): void {
+    this.vista = vista;
+  }
+
+  // Personas registradas en personal que todavia no tienen cuenta de acceso.
+  get personalSinCuenta(): Personal[] {
+    return this.personal.filter(
+      (p) => !this.usuarios.some((u) => u.personalId === p.id)
+    );
+  }
+
+  // Persona del colegio vinculada a una cuenta (si corresponde).
+  personaDe(usuario: Usuario): string {
+    if (usuario.personalId == null) {
+      return '—';
+    }
+    const persona = this.personal.find((p) => p.id === usuario.personalId);
+    return persona ? `${persona.nombre} ${persona.apellido}` : `#${usuario.personalId}`;
+  }
+
   private opcionesRoles(seleccionado?: string): string {
     return this.roles
       .map(rol => `<option value="${rol}" ${rol === seleccionado ? 'selected' : ''}>${rol}</option>`)
       .join('');
   }
 
-  abrirFormularioUsuario(): void {
+  private opcionesPersonal(seleccionado?: number): string {
+    const opciones = this.personalSinCuenta
+      .map(
+        (p) =>
+          `<option value="${p.id}" ${p.id === seleccionado ? 'selected' : ''}>` +
+          `${p.nombre} ${p.apellido} (${p.cargo})</option>`
+      )
+      .join('');
+
+    return `<option value="">Seleccione una persona</option>${opciones}`;
+  }
+
+  // Abre el formulario de creacion de cuenta.
+  // Si viene una persona (desde "Personal sin cuenta"), queda preseleccionada.
+  abrirFormularioUsuario(persona?: Personal): void {
+
+    if (this.personalSinCuenta.length === 0) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Sin personal pendiente',
+        text: 'No hay personas registradas sin cuenta de acceso.'
+      });
+      return;
+    }
 
     Swal.fire({
-      title: 'Nuevo usuario',
+      title: 'Crear cuenta',
 
       html: `
-        <input id="username" class="swal2-input" placeholder="Usuario">
+        <select id="personalId" class="swal2-select" style="width:90%;">
+          ${this.opcionesPersonal(persona?.id)}
+        </select>
 
-        <input id="password" class="swal2-input" type="password" placeholder="Contraseña">
+        <input id="username" class="swal2-input" placeholder="Usuario" style="width:90%;">
 
-        <select id="rol" class="swal2-select">
+        <input id="password" class="swal2-input" type="password" placeholder="Contraseña" style="width:90%;">
+
+        <select id="rol" class="swal2-select" style="width:90%;">
           <option value="">Seleccionar rol</option>
           ${this.opcionesRoles()}
         </select>
@@ -81,16 +159,17 @@ export class Usuarios implements OnInit {
 
       preConfirm: () => {
 
-        const username = (document.getElementById('username') as HTMLInputElement).value;
+        const personalId = (document.getElementById('personalId') as HTMLSelectElement).value;
+        const username = (document.getElementById('username') as HTMLInputElement).value.trim();
         const password = (document.getElementById('password') as HTMLInputElement).value;
         const rol = (document.getElementById('rol') as HTMLSelectElement).value;
 
-        if (!username || !password || !rol) {
+        if (!personalId || !username || !password || !rol) {
           Swal.showValidationMessage('Completá todos los campos');
           return false;
         }
 
-        return { username, password, rol };
+        return { username, password, rol, personalId: Number(personalId) };
       }
 
     }).then((resultado) => {
@@ -106,20 +185,20 @@ export class Usuarios implements OnInit {
       next: () => {
         Swal.fire({
           icon: 'success',
-          title: '¡Usuario creado!',
-          text: 'El usuario fue registrado correctamente.',
+          title: '¡Cuenta creada!',
+          text: 'La cuenta quedó vinculada a la persona seleccionada.',
           confirmButtonText: 'Aceptar'
         });
-        this.cargarUsuarios();
+        this.cargarTodo();
       },
       error: (error) => {
         console.error('Error al crear usuario:', error);
 
         const mensaje = error.status === 409
-          ? 'Ya existe un usuario con ese nombre.'
+          ? (error.error?.mensaje ?? 'La persona ya tiene una cuenta o el usuario ya existe.')
           : error.status === 403
             ? 'No tenés permisos para esta operación.'
-            : 'No se pudo registrar el usuario.';
+            : 'No se pudo crear la cuenta.';
 
         Swal.fire({ icon: 'error', title: 'Error', text: mensaje });
       }
@@ -132,11 +211,11 @@ export class Usuarios implements OnInit {
       title: 'Editar usuario',
 
       html: `
-        <input id="username" class="swal2-input" placeholder="Usuario" value="${usuario.username}">
+        <input id="username" class="swal2-input" placeholder="Usuario" value="${usuario.username}" style="width:90%;">
 
-        <input id="password" class="swal2-input" type="password" placeholder="Nueva contraseña (opcional)">
+        <input id="password" class="swal2-input" type="password" placeholder="Nueva contraseña (opcional)" style="width:90%;">
 
-        <select id="rol" class="swal2-select">
+        <select id="rol" class="swal2-select" style="width:90%;">
           ${this.opcionesRoles(usuario.rol)}
         </select>
       `,
@@ -157,7 +236,7 @@ export class Usuarios implements OnInit {
           return false;
         }
 
-        return { username, password, rol };
+        return { username, password, rol, personalId: usuario.personalId };
       }
 
     }).then((resultado) => {
@@ -198,7 +277,7 @@ export class Usuarios implements OnInit {
         this.usuarioService.eliminarUsuario(usuario.id).subscribe({
           next: () => {
             Swal.fire('Eliminado', 'El usuario fue eliminado.', 'success');
-            this.cargarUsuarios();
+            this.cargarTodo();
           },
           error: (error) => {
             console.error('Error al eliminar usuario:', error);

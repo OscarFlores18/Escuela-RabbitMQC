@@ -1,5 +1,6 @@
-export interface Usuario {
+﻿export interface Usuario {
   id: number;
   username: string;
   rol: string;
+  personalId?: number;
 }

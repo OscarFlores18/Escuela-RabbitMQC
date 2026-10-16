@@ -36,7 +36,7 @@ public class UsuarioController {
 
     // Gestion de usuarios/roles: solo ROOT y ADMIN
     @GetMapping
-    @PreAuthorize("hasAnyRole('ROOT','ADMIN')")
+    @PreAuthorize("hasAnyRole('ROOT')")
     public ResponseEntity<List<UsuarioSalidaDTO>> listarUsuarios() {
 
         List<UsuarioSalidaDTO> usuarios = usuarioService.listarUsuarios()
@@ -48,7 +48,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROOT','ADMIN')")
+    @PreAuthorize("hasAnyRole('ROOT')")
     public ResponseEntity<UsuarioSalidaDTO> obtenerPorId(@PathVariable Long id) {
 
         return usuarioService.obtenerPorId(id)
@@ -58,7 +58,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ROOT','ADMIN')")
+    @PreAuthorize("hasAnyRole('ROOT')")
     public ResponseEntity<UsuarioSalidaDTO> crearUsuario(
             @Valid @RequestBody UsuarioAltaDTO dto) {
 
@@ -67,7 +67,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROOT','ADMIN')")
+    @PreAuthorize("hasAnyRole('ROOT')")
     public ResponseEntity<UsuarioSalidaDTO> modificarUsuario(
             @PathVariable Long id,
             @Valid @RequestBody UsuarioModificarDTO dto) {
@@ -79,7 +79,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROOT','ADMIN')")
+    @PreAuthorize("hasAnyRole('ROOT')")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
 
         if (!usuarioService.eliminarUsuario(id)) {

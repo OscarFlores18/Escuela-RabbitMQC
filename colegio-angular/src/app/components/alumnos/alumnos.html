@@ -6,7 +6,7 @@
       <p>Listado de alumnos registrados</p>
     </div>
 
-    @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA')) {
+    @if (authService.tieneRol('PRECEPTOR')) {
       <button
         type="button"
         class="btn-nuevo"
@@ -46,7 +46,7 @@
 
             <td class="acciones">
 
-              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA')) {
+              @if (authService.tieneRol('PRECEPTOR')) {
                 <button
                   type="button"
                   class="btn-editar"

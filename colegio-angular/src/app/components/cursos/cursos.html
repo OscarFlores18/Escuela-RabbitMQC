@@ -7,7 +7,7 @@
       <p>Listado de cursos registrados</p>
     </div>
 
-    @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA')) {
+    @if (authService.tieneRol('ROOT', 'PRECEPTOR')) {
       <button
         type="button"
         class="btn-nuevo"
@@ -65,41 +65,7 @@
             <td>{{ docenteDe(curso) }}</td>
 
             <td class="acciones">
-              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA')) {
-                <button
-                  type="button"
-                  class="btn-editar"
-                  (click)="abrirFormularioEditar(curso)">
-                  Editar
-                </button>
-              }
 
-              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR')) {
-                <button
-                  type="button"
-                  class="btn-eliminar"
-                  (click)="confirmarEliminar(curso)">
-                  Eliminar
-                </button>
-              }
-
-              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA')) {
-                <button
-                  type="button"
-                  class="btn-inscribir"
-                  (click)="abrirInscribir(curso)">
-                  Inscribir
-                </button>
-              }
-
-              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR')) {
-                <button
-                  type="button"
-                  class="btn-quitar"
-                  (click)="abrirQuitar(curso)">
-                  Quitar
-                </button>
-              }
             </td>
 
           </tr>

@@ -16,6 +16,7 @@ import Swal from 'sweetalert2';
 export class Alumnos implements OnInit {
 
   alumnos: Alumno[] = [];
+  cursos: Curso[] = [];
   private mapaCursoPorAlumno = new Map<number, string>();
 
   constructor(
@@ -37,6 +38,7 @@ export class Alumnos implements OnInit {
   cargarCursos(): void {
     this.cursoService.obtenerCursos().subscribe({
       next: (cursos) => {
+        this.cursos = cursos;
         const mapa = new Map<number, string>();
         cursos.forEach((curso) => {
           const etiqueta = `${curso.grado} ${curso.division} - ${curso.materia}`;
@@ -55,6 +57,27 @@ export class Alumnos implements OnInit {
 
   cursoDe(alumnoId: number): string {
     return this.mapaCursoPorAlumno.get(alumnoId) ?? '—';
+  }
+
+  // Id del curso en el que esta inscripto el alumno (si lo esta).
+  private cursoIdDeAlumno(alumnoId: number): number | undefined {
+    const curso = this.cursos.find(
+      (c) => (c.alumnoIds ?? []).includes(alumnoId)
+    );
+    return curso?.id;
+  }
+
+  // Opciones de cursos para los formularios (alta y edicion).
+  private opcionesCursos(seleccionado?: number): string {
+    const opciones = this.cursos
+      .map(
+        (c) =>
+          `<option value="${c.id}" ${c.id === seleccionado ? 'selected' : ''}>` +
+          `${c.grado} ${c.division} - ${c.materia}</option>`
+      )
+      .join('');
+
+    return `<option value="">Sin curso / Seleccione un curso</option>${opciones}`;
   }
 
   cargarAlumnos(): void {
@@ -97,28 +120,41 @@ export class Alumnos implements OnInit {
 
       title: 'Nuevo alumno',
 
+      width: '420px',
+
       html: `
         <input
           id="nombre"
           class="swal2-input"
-          placeholder="Nombre">
+          placeholder="Nombre"
+          style="width:90%;">
 
         <input
           id="apellido"
           class="swal2-input"
-          placeholder="Apellido">
+          placeholder="Apellido"
+          style="width:90%;">
 
         <input
           id="dni"
           class="swal2-input"
           placeholder="DNI"
-          type="text">
+          type="text"
+          style="width:90%;">
 
         <input
           id="email"
           class="swal2-input"
           placeholder="Email"
-          type="email">
+          type="email"
+          style="width:90%;">
+
+        <select
+          id="cursoId"
+          class="swal2-select"
+          style="width:90%;">
+          ${this.opcionesCursos()}
+        </select>
       `,
 
       confirmButtonText: 'Guardar alumno',
@@ -144,6 +180,10 @@ export class Alumnos implements OnInit {
 
         const email = (
           document.getElementById('email') as HTMLInputElement
+        ).value;
+
+        const cursoId = (
+          document.getElementById('cursoId') as HTMLSelectElement
         ).value;
 
 
@@ -183,7 +223,8 @@ export class Alumnos implements OnInit {
           nombre,
           apellido,
           dni,
-          email
+          email,
+          cursoId: cursoId ? Number(cursoId) : undefined
         };
 
       }
@@ -205,27 +246,36 @@ export class Alumnos implements OnInit {
 abrirFormularioEdicion(alumno: Alumno): void {
   Swal.fire({
     title: 'Editar alumno',
+    width: '420px',
     html: `
       <input id="nombre"
         class="swal2-input"
         placeholder="Nombre"
-        value="${alumno.nombre}">
+        value="${alumno.nombre}"
+        style="width:90%;">
 
       <input id="apellido"
         class="swal2-input"
         placeholder="Apellido"
-        value="${alumno.apellido}">
+        value="${alumno.apellido}"
+        style="width:90%;">
 
       <input id="dni"
         class="swal2-input"
         placeholder="DNI"
-        value="${alumno.dni}">
+        value="${alumno.dni}"
+        style="width:90%;">
 
       <input id="email"
         class="swal2-input"
         type="email"
         placeholder="Email"
-        value="${alumno.email}">
+        value="${alumno.email}"
+        style="width:90%;">
+
+      <select id="cursoId" class="swal2-select" style="width:90%;">
+        ${this.opcionesCursos(this.cursoIdDeAlumno(alumno.id))}
+      </select>
     `,
     showCancelButton: true,
     confirmButtonText: 'Guardar cambios',
@@ -240,6 +290,8 @@ abrirFormularioEdicion(alumno: Alumno): void {
         (document.getElementById('dni') as HTMLInputElement).value;
       const email =
         (document.getElementById('email') as HTMLInputElement).value;
+      const cursoId =
+        (document.getElementById('cursoId') as HTMLSelectElement).value;
 
       if (!nombre || !apellido || !dni || !email) {
         Swal.showValidationMessage(
@@ -262,7 +314,13 @@ abrirFormularioEdicion(alumno: Alumno): void {
         return false;
       }
 
-      return { nombre, apellido, dni, email };
+      return {
+        nombre,
+        apellido,
+        dni,
+        email,
+        cursoId: cursoId ? Number(cursoId) : undefined
+      };
     }
   }).then(resultado => {
     if (resultado.isConfirmed) {

@@ -53,6 +53,38 @@
 }
 
 /* =========================
+   VISTAS (TABS)
+   ========================= */
+
+.vistas {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  color: #334155;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  background: #f1f5f9;
+}
+
+.tab.activa {
+  background: #1e293b;
+  border-color: #1e293b;
+  color: white;
+}
+
+/* =========================
    TABLA
    ========================= */
 

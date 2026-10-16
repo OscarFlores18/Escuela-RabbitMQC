@@ -4,76 +4,170 @@
 
     <div>
       <h1>Gestión de Usuarios</h1>
-      <p>Usuarios del sistema y sus roles</p>
+      <p>Cuentas de acceso del sistema y personal del colegio</p>
     </div>
 
-    <button
-      type="button"
-      class="btn-nuevo"
-      (click)="abrirFormularioUsuario()">
-      + Nuevo usuario
-    </button>
+    @if (esRoot) {
+      <button
+        type="button"
+        class="btn-nuevo"
+        (click)="abrirFormularioUsuario()">
+        + Nueva cuenta
+      </button>
+    }
 
   </div>
 
+  @if (esRoot) {
+
+    <div class="vistas">
+
+      <button
+        type="button"
+        class="tab"
+        [class.activa]="vista === 'registrados'"
+        (click)="cambiarVista('registrados')">
+        Usuarios registrados ({{ usuarios.length }})
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        [class.activa]="vista === 'sin-cuenta'"
+        (click)="cambiarVista('sin-cuenta')">
+        Personal sin cuenta ({{ personalSinCuenta.length }})
+      </button>
+
+    </div>
+
+  }
+
   <div class="tabla-container">
 
-    <table>
+    @if (vista === 'registrados') {
 
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Usuario</th>
-          <th>Rol</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+      <table>
 
-      <tbody>
-
-        @for (usuario of usuarios; track usuario.id) {
-
+        <thead>
           <tr>
-
-            <td>{{ usuario.id }}</td>
-
-            <td>{{ usuario.username }}</td>
-
-            <td>{{ usuario.rol }}</td>
-
-            <td class="acciones">
-              <button
-                type="button"
-                class="btn-editar"
-                (click)="abrirFormularioEditar(usuario)">
-                Editar
-              </button>
-
-              <button
-                type="button"
-                class="btn-eliminar"
-                (click)="confirmarEliminar(usuario)">
-                Eliminar
-              </button>
-            </td>
-
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Persona</th>
+            <th>Rol</th>
+            @if (esRoot) {
+              <th>Acciones</th>
+            }
           </tr>
+        </thead>
 
-        }
+        <tbody>
 
-        @empty {
+          @for (usuario of usuarios; track usuario.id) {
 
+            <tr>
+
+              <td>{{ usuario.id }}</td>
+
+              <td>{{ usuario.username }}</td>
+
+              <td>{{ personaDe(usuario) }}</td>
+
+              <td>{{ usuario.rol }}</td>
+
+              @if (esRoot) {
+                <td class="acciones">
+                  <button
+                    type="button"
+                    class="btn-editar"
+                    (click)="abrirFormularioEditar(usuario)">
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-eliminar"
+                    (click)="confirmarEliminar(usuario)">
+                    Eliminar
+                  </button>
+                </td>
+              }
+
+            </tr>
+
+          }
+
+          @empty {
+
+            <tr>
+              <td [attr.colspan]="esRoot ? 5 : 4">
+                No hay usuarios registrados.
+              </td>
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    }
+
+    @if (vista === 'sin-cuenta') {
+
+      <table>
+
+        <thead>
           <tr>
-            <td colspan="4">
-              No hay usuarios registrados.
-            </td>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Cargo</th>
+            <th>Acciones</th>
           </tr>
+        </thead>
 
-        }
+        <tbody>
 
-      </tbody>
+          @for (persona of personalSinCuenta; track persona.id) {
 
-    </table>
+            <tr>
+
+              <td>{{ persona.id }}</td>
+
+              <td>{{ persona.nombre }} {{ persona.apellido }}</td>
+
+              <td>{{ persona.email }}</td>
+
+              <td>{{ persona.cargo }}</td>
+
+              <td class="acciones">
+                <button
+                  type="button"
+                  class="btn-editar"
+                  (click)="abrirFormularioUsuario(persona)">
+                  Crear cuenta
+                </button>
+              </td>
+
+            </tr>
+
+          }
+
+          @empty {
+
+            <tr>
+              <td colspan="5">
+                Todo el personal registrado ya tiene una cuenta.
+              </td>
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    }
 
   </div>
 

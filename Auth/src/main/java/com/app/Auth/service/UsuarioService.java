@@ -38,10 +38,18 @@ public class UsuarioService {
                     "Ya existe un usuario con el nombre: " + dto.username());
         });
 
+        // Una persona del colegio no puede tener mas de una cuenta de acceso.
+        if (dto.personalId() != null
+                && usuarioRepository.existsByPersonalId(dto.personalId())) {
+            throw new UsuarioYaExisteException(
+                    "La persona seleccionada ya tiene una cuenta asociada.");
+        }
+
         Usuario usuario = new Usuario(
                 dto.username(),
                 passwordEncoder.encode(dto.password()),
-                dto.rol());
+                dto.rol(),
+                dto.personalId());
 
         return usuarioRepository.save(usuario);
     }

@@ -323,76 +323,7 @@ confirmarEliminar(curso: Curso): void {
   });
 }
 
-  abrirInscribir(curso: Curso): void {
-    Swal.fire({
-      title: 'Inscribir alumno',
-      input: 'number',
-      inputLabel: `Curso ${curso.grado} ${curso.division} - Materia ${curso.materia}`,
-      inputPlaceholder: 'ID del alumno',
-      showCancelButton: true,
-      confirmButtonText: 'Inscribir',
-      cancelButtonText: 'Cancelar',
-      inputValidator: (value) => {
-        if (!value || Number(value) <= 0) {
-          return 'Ingresá un ID de alumno válido';
-        }
-        return null;
-      }
-    }).then((resultado) => {
-      if (resultado.isConfirmed && resultado.value) {
-        this.cursoService.inscribirAlumno(curso.id, Number(resultado.value)).subscribe({
-          next: () => {
-            Swal.fire('¡Inscripto!', 'El alumno fue inscrito en el curso.', 'success');
-            this.cargarCursos();
-          },
-          error: (error) => {
-            console.error('Error al inscribir alumno:', error);
-            const mensaje = error.status === 409
-              ? 'No hay cupo disponible en este curso.'
-              : error.status === 404
-                ? 'No se encontró el curso o el alumno.'
-                : 'No se pudo inscribir al alumno.';
-            Swal.fire('Error', mensaje, 'error');
-          }
-        });
-      }
-    });
-  }
 
-  abrirQuitar(curso: Curso): void {
-    Swal.fire({
-      title: 'Quitar alumno',
-      input: 'number',
-      inputLabel: `Curso ${curso.grado} ${curso.division} - Materia ${curso.materia}`,
-      inputPlaceholder: 'ID del alumno',
-      showCancelButton: true,
-      confirmButtonText: 'Quitar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#dc2626',
-      inputValidator: (value) => {
-        if (!value || Number(value) <= 0) {
-          return 'Ingresá un ID de alumno válido';
-        }
-        return null;
-      }
-    }).then((resultado) => {
-      if (resultado.isConfirmed && resultado.value) {
-        this.cursoService.quitarAlumno(curso.id, Number(resultado.value)).subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'El alumno fue quitado del curso.', 'success');
-            this.cargarCursos();
-          },
-          error: (error) => {
-            console.error('Error al quitar alumno:', error);
-            const mensaje = error.status === 404
-              ? 'No se encontró el curso o el alumno en el curso.'
-              : 'No se pudo quitar al alumno.';
-            Swal.fire('Error', mensaje, 'error');
-          }
-        });
-      }
-    });
-  }
 
   crearCurso(curso: Curso): void {
 

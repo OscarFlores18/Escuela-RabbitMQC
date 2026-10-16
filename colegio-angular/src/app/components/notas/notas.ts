@@ -17,6 +17,8 @@ import Swal from 'sweetalert2';
 export class Notas implements OnInit {
 
   notas: Nota[] = [];
+  alumnos: Alumno[] = [];
+  cursos: Curso[] = [];
   private mapaAlumnos = new Map<number, string>();
   private mapaCursos = new Map<number, string>();
 
@@ -38,6 +40,7 @@ export class Notas implements OnInit {
   cargarAlumnos(): void {
     this.alumnoService.obtenerAlumnos().subscribe({
       next: (alumnos) => {
+        this.alumnos = alumnos;
         this.mapaAlumnos = new Map(
           alumnos.map((a) => [a.id, `${a.nombre} ${a.apellido}`])
         );
@@ -53,6 +56,7 @@ export class Notas implements OnInit {
   cargarCursos(): void {
     this.cursoService.obtenerCursos().subscribe({
       next: (cursos) => {
+        this.cursos = cursos;
         this.mapaCursos = new Map(
           cursos.map((c) => [
             c.id,
@@ -93,28 +97,50 @@ export class Notas implements OnInit {
     });
   }
 
+  private opcionesAlumnos(seleccionado?: number): string {
+    const opciones = this.alumnos
+      .map(
+        (a) =>
+          `<option value="${a.id}" ${a.id === seleccionado ? 'selected' : ''}>` +
+          `${a.nombre} ${a.apellido}</option>`
+      )
+      .join('');
+
+    return `<option value="">Seleccione un alumno</option>${opciones}`;
+  }
+
+  private opcionesCursos(seleccionado?: number): string {
+    const opciones = this.cursos
+      .map(
+        (c) =>
+          `<option value="${c.id}" ${c.id === seleccionado ? 'selected' : ''}>` +
+          `${c.grado} ${c.division} - ${c.materia}</option>`
+      )
+      .join('');
+
+    return `<option value="">Seleccione un curso</option>${opciones}`;
+  }
+
   abrirFormularioNota(): void {
 
     Swal.fire({
       title: 'Nueva nota',
+      width: '420px',
 
       html: `
-        <input
-          id="alumnoId"
-          class="swal2-input"
-          placeholder="ID del alumno"
-          type="number">
+        <select id="alumnoId" class="swal2-select" style="width:90%;">
+          ${this.opcionesAlumnos()}
+        </select>
 
-        <input
-          id="cursoId"
-          class="swal2-input"
-          placeholder="ID del curso"
-          type="number">
+        <select id="cursoId" class="swal2-select" style="width:90%;">
+          ${this.opcionesCursos()}
+        </select>
 
         <input
           id="materia"
           class="swal2-input"
-          placeholder="Materia">
+          placeholder="Materia"
+          style="width:90%;">
 
         <input
           id="nota"
@@ -123,13 +149,15 @@ export class Notas implements OnInit {
           type="number"
           step="0.01"
           min="0"
-          max="10">
+          max="10"
+          style="width:90%;">
 
         <input
           id="fecha"
           class="swal2-input"
           placeholder="Fecha"
-          type="date">
+          type="date"
+          style="width:90%;">
       `,
 
       confirmButtonText: 'Guardar nota',
@@ -140,13 +168,13 @@ export class Notas implements OnInit {
       preConfirm: () => {
 
         const alumnoId =
-          (document.getElementById('alumnoId') as HTMLInputElement).value;
+          (document.getElementById('alumnoId') as HTMLSelectElement).value;
 
         const cursoId =
-          (document.getElementById('cursoId') as HTMLInputElement).value;
+          (document.getElementById('cursoId') as HTMLSelectElement).value;
 
         const materia =
-          (document.getElementById('materia') as HTMLInputElement).value;
+          (document.getElementById('materia') as HTMLInputElement).value.trim();
 
         const nota =
           (document.getElementById('nota') as HTMLInputElement).value;
@@ -217,22 +245,28 @@ export class Notas implements OnInit {
 
     Swal.fire({
       title: 'Editar nota',
+      width: '420px',
 
       html: `
-        <input id="alumnoId" class="swal2-input" type="number"
-          placeholder="ID del alumno" value="${nota.alumnoId}">
+        <select id="alumnoId" class="swal2-select" style="width:90%;">
+          ${this.opcionesAlumnos(nota.alumnoId)}
+        </select>
 
-        <input id="cursoId" class="swal2-input" type="number"
-          placeholder="ID del curso" value="${nota.cursoId}">
+        <select id="cursoId" class="swal2-select" style="width:90%;">
+          ${this.opcionesCursos(nota.cursoId)}
+        </select>
 
         <input id="materia" class="swal2-input"
-          placeholder="Materia" value="${nota.materia}">
+          placeholder="Materia" value="${nota.materia ?? ''}"
+          style="width:90%;">
 
         <input id="nota" class="swal2-input" type="number" step="0.01"
-          min="0" max="10" placeholder="Nota (0 a 10)" value="${nota.nota}">
+          min="0" max="10" placeholder="Nota (0 a 10)" value="${nota.nota}"
+          style="width:90%;">
 
         <input id="fecha" class="swal2-input" type="date"
-          placeholder="Fecha" value="${nota.fecha ?? ''}">
+          placeholder="Fecha" value="${nota.fecha ?? ''}"
+          style="width:90%;">
       `,
 
       showCancelButton: true,
@@ -243,10 +277,10 @@ export class Notas implements OnInit {
       preConfirm: () => {
 
         const alumnoId =
-          (document.getElementById('alumnoId') as HTMLInputElement).value;
+          (document.getElementById('alumnoId') as HTMLSelectElement).value;
 
         const cursoId =
-          (document.getElementById('cursoId') as HTMLInputElement).value;
+          (document.getElementById('cursoId') as HTMLSelectElement).value;
 
         const materia =
           (document.getElementById('materia') as HTMLInputElement).value.trim();
@@ -287,7 +321,13 @@ export class Notas implements OnInit {
           .subscribe({
 
             next: () => {
-              Swal.fire('¡Modificada!', 'La nota se actualizó correctamente.', 'success');
+              Swal.fire({
+                icon: 'success',
+                title: '¡Modificada!',
+                text: 'La nota se actualizó correctamente.',
+                timer: 1800,
+                showConfirmButton: false
+              });
               this.cargarNotas();
             },
 
@@ -304,7 +344,7 @@ export class Notas implements OnInit {
 
     Swal.fire({
       title: '¿Eliminar nota?',
-      text: `Se eliminará la nota de ${nota.materia}.`,
+      text: `Se eliminará la nota de ${this.alumnoDe(nota)} - ${this.cursoDe(nota)}`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
@@ -317,7 +357,13 @@ export class Notas implements OnInit {
         this.notaService.eliminarNota(nota.id).subscribe({
 
           next: () => {
-            Swal.fire('Eliminada', 'La nota fue eliminada.', 'success');
+            Swal.fire({
+              icon: 'success',
+              title: 'Eliminada',
+              text: 'La nota fue eliminada correctamente.',
+              timer: 1500,
+              showConfirmButton: false
+            });
             this.cargarNotas();
           },
 

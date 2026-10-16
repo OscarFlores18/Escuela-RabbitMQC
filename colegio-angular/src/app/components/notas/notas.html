@@ -7,7 +7,7 @@
       <p>Listado de calificaciones registradas</p>
     </div>
 
-    @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'DOCENTE')) {
+    @if (authService.tieneRol('DOCENTE')) {
       <button
         type="button"
         class="btn-nuevo"
@@ -54,16 +54,14 @@
 
             <td class="acciones">
 
-              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'DOCENTE')) {
+              @if (authService.tieneRol('DOCENTE')) {
                 <button
                   type="button"
                   class="btn-editar"
                   (click)="abrirFormularioEditar(nota)">
                   Editar
                 </button>
-              }
 
-              @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR')) {
                 <button
                   type="button"
                   class="btn-eliminar"

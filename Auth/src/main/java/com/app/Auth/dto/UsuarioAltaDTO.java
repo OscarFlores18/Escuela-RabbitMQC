@@ -8,5 +8,6 @@ import jakarta.validation.constraints.NotNull;
 public record UsuarioAltaDTO(
     @NotBlank String username,
     @NotBlank String password,
-    @NotNull Rol rol
+    @NotNull Rol rol,
+    Long personalId
 ) {}
