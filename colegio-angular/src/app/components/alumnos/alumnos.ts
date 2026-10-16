@@ -1,3 +1,5 @@
+import { NotaService } from '../../services/nota.service';
+import { Nota } from '../../models/nota';
 import { Component, ChangeDetectorRef, OnInit  } from '@angular/core';import { ReactiveFormsModule } from '@angular/forms';
 import { AlumnoService } from '../../services/alumno.service';
 import { Alumno } from '../../models/alumno';
@@ -5,6 +7,7 @@ import { CursoService } from '../../services/curso.service';
 import { Curso } from '../../models/curso';
 import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
+
 
 @Component({
   selector: 'app-alumnos',
@@ -14,7 +17,7 @@ import Swal from 'sweetalert2';
   styleUrl: './alumnos.css'
 })
 export class Alumnos implements OnInit {
-
+  notas: Nota[] = [];
   alumnos: Alumno[] = [];
   cursos: Curso[] = [];
   private mapaCursoPorAlumno = new Map<number, string>();
@@ -23,18 +26,41 @@ export class Alumnos implements OnInit {
     private alumnoService: AlumnoService,
     private cursoService: CursoService,
     public authService: AuthService,
+    private notaService: NotaService,
     private cdr: ChangeDetectorRef
-  ) {
+  ) 
+  {
     console.log('🔥 ALUMNOS COMPONENTE CREADO');
   }
 
   ngOnInit(): void {
-    console.log('🔥 EJECUTANDO CARGAR ALUMNOS');
     this.cargarAlumnos();
     this.cargarCursos();
+    this.cargarNotas();
+
   }
 
-  // Relacion alumno -> curso: los cursos traen los ids de sus alumnos inscriptos.
+
+cargarNotas(): void {
+  this.notaService.obtenerNotas().subscribe({
+    next: (notas) => {
+      this.notas = notas;
+      this.cdr.detectChanges();
+    },
+    error: (error) => {
+      console.error('Error al cargar notas:', error);
+    }
+  });
+}
+
+notasDe(alumnoId: number): Nota[] {
+  return this.notas
+    .filter(nota => nota.alumnoId === alumnoId)
+    .slice(0, 3);
+}
+
+
+
   cargarCursos(): void {
     this.cursoService.obtenerCursos().subscribe({
       next: (cursos) => {
@@ -82,17 +108,11 @@ export class Alumnos implements OnInit {
 
   cargarAlumnos(): void {
 
-    console.log('🔥 CARGANDO ALUMNOS...');
-
     this.alumnoService.obtenerAlumnos().subscribe({
 
       next: (data) => {
 
-        console.log('🔥 ALUMNOS RECIBIDOS:', data);
-
         this.alumnos = data;
-
-        // 🔥 Fuerza a Angular a actualizar la pantalla
         this.cdr.detectChanges();
 
       },
@@ -185,9 +205,6 @@ export class Alumnos implements OnInit {
         const cursoId = (
           document.getElementById('cursoId') as HTMLSelectElement
         ).value;
-
-
-        // VALIDACIONES
 
         if (!nombre || !apellido || !dni || !email) {
 

@@ -33,7 +33,6 @@ public class CursoController {
         nuevo.setDivision(dto.division());
         nuevo.setGrado(dto.grado());
         nuevo.setTurno(dto.turno());
-        nuevo.setMateria(dto.materia());
         nuevo.setHorario(dto.horario());
         nuevo.setCupo_maximo(dto.cupo_maximo());
         nuevo.setDocenteId(dto.docenteId());

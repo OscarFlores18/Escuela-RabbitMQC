@@ -1,9 +1,10 @@
+
 <div class="alumnos-container">
 
   <div class="encabezado">
     <div>
-      <h1>Gestión de Alumnos</h1>
-      <p>Listado de alumnos registrados</p>
+      <h1>Gestión de alumnos</h1>
+      <p>Consultá y administrá los alumnos del colegio.</p>
     </div>
 
     @if (authService.tieneRol('PRECEPTOR')) {
@@ -11,75 +12,107 @@
         type="button"
         class="btn-nuevo"
         (click)="abrirFormularioAlumno()">
-        + Nuevo alumno
+        <span>＋</span> Nuevo alumno
       </button>
     }
   </div>
 
-  <div class="tabla-container">
+  <div class="alumnos-grid">
 
-    <table>
+    @for (alumno of alumnos; track alumno.id) {
 
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>DNI</th>
-          <th>Email</th>
-          <th>Curso</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+      <article class="alumno-card">
 
-      <tbody>
+        <div class="card-menu">
+          <span class="alumno-id">#{{ alumno.id }}</span>
 
-        @for (alumno of alumnos; track alumno.id) {
+          @if (authService.tieneRol('PRECEPTOR')) {
+            <div class="acciones">
+              <button
+                type="button"
+                class="btn-icono editar"
+                title="Editar alumno"
+                aria-label="Editar alumno"
+                (click)="abrirFormularioEdicion(alumno)">
+                ✎
+              </button>
 
-          <tr>
-            <td>{{ alumno.id }}</td>
-            <td>{{ alumno.nombre }}</td>
-            <td>{{ alumno.apellido }}</td>
-            <td>{{ alumno.dni }}</td>
-            <td>{{ alumno.email }}</td>
-            <td>{{ cursoDe(alumno.id) }}</td>
+              <button
+                type="button"
+                class="btn-icono eliminar"
+                title="Eliminar alumno"
+                aria-label="Eliminar alumno"
+                (click)="confirmarEliminacion(alumno)">
+                🗑
+              </button>
+            </div>
+          }
+        </div>
 
-            <td class="acciones">
+        <div class="alumno-avatar">
+          {{ alumno.nombre.charAt(0).toUpperCase() }}{{ alumno.apellido.charAt(0).toUpperCase() }}
+        </div>
 
-              @if (authService.tieneRol('PRECEPTOR')) {
-                <button
-                  type="button"
-                  class="btn-editar"
-                  (click)="abrirFormularioEdicion(alumno)">
-                  Editar
-                </button>
+        <h2>{{ alumno.nombre }} {{ alumno.apellido }}</h2>
 
-                <button
-                  type="button"
-                  class="btn-eliminar"
-                  (click)="confirmarEliminacion(alumno)">
-                  Eliminar
-                </button>
-              }
+        <span class="alumno-etiqueta">Alumno</span>
 
-            </td>
-          </tr>
+        <div class="card-divider"></div>
 
-        }
+        <div class="alumno-datos">
+          <div class="dato">
+            <span class="dato-label">DNI</span>
+            <span class="dato-valor">{{ alumno.dni }}</span>
+          </div>
 
-        @empty {
+          <div class="dato">
+            <span class="dato-label">Curso</span>
+            <span class="dato-valor">{{ cursoDe(alumno.id) }}</span>
+          </div>
+        </div>
 
-          <tr>
-            <td colspan="7">
-              No hay alumnos registrados.
-            </td>
-          </tr>
+<div class="alumno-email" [title]="alumno.email">
+  ✉ {{ alumno.email }}
+</div>
 
-        }
+<div class="notas-section">
+  <div class="notas-titulo">
+    <span>Últimas calificaciones</span>
+    <span>📝</span>
+  </div>
 
-      </tbody>
+  <div class="notas-lista">
+    @for (nota of notasDe(alumno.id); track nota.id) {
+      <div class="nota-item">
+        <div class="nota-info">
+          <span class="nota-materia">{{ nota.materia }}</span>
+          <span class="nota-fecha">{{ nota.fecha || 'Sin fecha' }}</span>
+        </div>
 
-    </table>
+        <span
+          class="nota-valor"
+          [class.nota-aprobada]="nota.nota >= 6"
+          [class.nota-baja]="nota.nota < 6">
+          {{ nota.nota }}
+        </span>
+      </div>
+    } @empty {
+      <p class="sin-notas">Todavía no hay calificaciones.</p>
+    }
+  </div>
+</div>
+
+      </article>
+
+    } @empty {
+
+      <div class="sin-alumnos">
+        <div class="sin-alumnos-icono">🎓</div>
+        <h2>No hay alumnos registrados</h2>
+        <p>Cuando registres un alumno, aparecerá en esta sección.</p>
+      </div>
+
+    }
 
   </div>
 

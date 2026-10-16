@@ -137,12 +137,6 @@ export class Notas implements OnInit {
         </select>
 
         <input
-          id="materia"
-          class="swal2-input"
-          placeholder="Materia"
-          style="width:90%;">
-
-        <input
           id="nota"
           class="swal2-input"
           placeholder="Nota (0 a 10)"
@@ -197,7 +191,6 @@ export class Notas implements OnInit {
         return {
           alumnoId: Number(alumnoId),
           cursoId: Number(cursoId),
-          materia,
           nota: valor,
           fecha: fecha || null
         };
@@ -256,10 +249,6 @@ export class Notas implements OnInit {
           ${this.opcionesCursos(nota.cursoId)}
         </select>
 
-        <input id="materia" class="swal2-input"
-          placeholder="Materia" value="${nota.materia ?? ''}"
-          style="width:90%;">
-
         <input id="nota" class="swal2-input" type="number" step="0.01"
           min="0" max="10" placeholder="Nota (0 a 10)" value="${nota.nota}"
           style="width:90%;">
@@ -282,16 +271,13 @@ export class Notas implements OnInit {
         const cursoId =
           (document.getElementById('cursoId') as HTMLSelectElement).value;
 
-        const materia =
-          (document.getElementById('materia') as HTMLInputElement).value.trim();
-
         const notaValor =
           (document.getElementById('nota') as HTMLInputElement).value;
 
         const fecha =
           (document.getElementById('fecha') as HTMLInputElement).value;
 
-        if (!alumnoId || !cursoId || !materia || !notaValor) {
+        if (!alumnoId || !cursoId || !notaValor) {
           Swal.showValidationMessage('Completá todos los campos obligatorios');
           return false;
         }
@@ -306,7 +292,6 @@ export class Notas implements OnInit {
         return {
           alumnoId: Number(alumnoId),
           cursoId: Number(cursoId),
-          materia,
           nota: valor,
           fecha: fecha || null
         };
