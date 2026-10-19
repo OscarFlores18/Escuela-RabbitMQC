@@ -1,13 +1,12 @@
-<div class="cursos-container">
+<div class="page">
 
-  <div class="encabezado">
-
+  <div class="page-header">
     <div>
       <h1>Gestión de Cursos</h1>
-      <p>Listado de cursos registrados</p>
+      <p>{{ cursos.length }} curso(s) registrado(s)</p>
     </div>
 
-    @if (authService.tieneRol('ROOT', 'PRECEPTOR')) {
+    @if (authService.tieneRol('ROOT', 'PRECEPTOR', 'ADMIN')) {
       <button
         type="button"
         class="btn-nuevo"
@@ -15,77 +14,99 @@
         + Nuevo curso
       </button>
     }
-
   </div>
 
-  <div class="tabla-container">
+  @if (cursos.length === 0) {
 
-    <table>
+    <div class="cards-empty">
+      No hay cursos registrados.
+    </div>
 
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Ciclo lectivo</th>
-          <th>División</th>
-          <th>Grado</th>
-          <th>Turno</th>
-          <th>Materia</th>
-          <th>Horario</th>
-          <th>Cupo máximo</th>
-          <th>Inscriptos</th>
-          <th>Docente</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+  } @else {
 
-      <tbody>
+    <div class="cards-grid">
 
-        @for (curso of cursos; track curso.id) {
+      @for (curso of cursos; track curso.id) {
 
-          <tr>
+        <article class="entity-card">
 
-            <td>{{ curso.id }}</td>
+          <header class="entity-card__header">
 
-            <td>{{ curso.ciclo_lectivo }}</td>
+            <div class="entity-avatar">📚</div>
 
-            <td>{{ curso.division }}</td>
+            <div class="entity-head">
+              <h2 class="entity-title">
+                {{ curso.grado }} {{ curso.division }}
+              </h2>
+              <p class="entity-subtitle">Ciclo {{ curso.ciclo_lectivo }}</p>
+            </div>
 
-            <td>{{ curso.grado }}</td>
+            @if (cupoLleno(curso)) {
+              <span class="badge badge--red">Cupo completo</span>
+            } @else {
+              <span class="badge badge--green">Con cupo</span>
+            }
 
-            <td>{{ curso.turno }}</td>
+          </header>
 
-            <td>{{ curso.materia }}</td>
+          <div class="entity-card__body">
 
-            <td>{{ curso.horario }}</td>
+            <div class="entity-row">
+              <span class="label">Turno</span>
+              <span class="value">{{ curso.turno }}</span>
+            </div>
 
-            <td>{{ curso.cupo_maximo }}</td>
+            <div class="entity-row">
+              <span class="label">Horario</span>
+              <span class="value">{{ curso.horario }}</span>
+            </div>
 
-            <td>{{ curso.cantidadAlumnos ?? 0 }} / {{ curso.cupo_maximo }}</td>
+            <div class="entity-row">
+              <span class="label">Docente</span>
+              <span class="value">{{ docenteDe(curso) }}</span>
+            </div>
 
-            <td>{{ docenteDe(curso) }}</td>
+            <div class="entity-row">
+              <span class="label">Inscriptos</span>
+              <span class="value">
+                {{ curso.cantidadAlumnos ?? 0 }} / {{ curso.cupo_maximo }}
+              </span>
+            </div>
 
-            <td class="acciones">
+            <div class="cupo-bar">
+              <div
+                class="cupo-bar__fill"
+                [class.lleno]="cupoLleno(curso)"
+                [style.width.%]="porcentajeCupo(curso)">
+              </div>
+            </div>
 
-            </td>
+          </div>
 
-          </tr>
+          @if (authService.tieneRol('ROOT', 'PRECEPTOR', 'ADMIN')) {
+            <footer class="entity-card__footer">
+              <button
+                type="button"
+                class="btn-editar"
+                (click)="abrirFormularioEditar(curso)">
+                Editar
+              </button>
 
-        }
+              <button
+                type="button"
+                class="btn-eliminar"
+                (click)="confirmarEliminar(curso)">
+                Eliminar
+              </button>
+            </footer>
+          }
 
-        @empty {
+        </article>
 
-          <tr>
-            <td colspan="11">
-              No hay cursos registrados.
-            </td>
-          </tr>
+      }
 
-        }
+    </div>
 
-      </tbody>
-
-    </table>
-
-  </div>
+  }
 
 </div>

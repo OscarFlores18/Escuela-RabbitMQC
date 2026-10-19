@@ -42,7 +42,7 @@ public class AlumnoController {
 
     // Lectura: root, director, docente, preceptor
     @GetMapping
-    @PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','DOCENTE','PRECEPTOR','SECRETARIA','ADMINISTRATIVO')")
+    @PreAuthorize("hasAnyRole('ROOT','ADMIN','DOCENTE','PRECEPTOR','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<List<AlumnoSalidaDTO>> listarAlumnos() {
         List<AlumnoSalidaDTO> alumnos = alumnoService.listarAlumnos()
                 .stream()
@@ -53,7 +53,7 @@ public class AlumnoController {
     }
 
     @GetMapping("/{id}/con-curso")
-    @PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','DOCENTE','PRECEPTOR','SECRETARIA','ADMINISTRATIVO')")
+    @PreAuthorize("hasAnyRole('ROOT','ADMIN','DOCENTE','PRECEPTOR','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<AlumnoConCursoDTO> obtenerConCurso(@PathVariable Long id) {
         return ResponseEntity.ok(alumnoService.obtenerConCurso(id));
     }

@@ -103,6 +103,20 @@ export class Usuarios implements OnInit {
     return persona ? `${persona.nombre} ${persona.apellido}` : `#${usuario.personalId}`;
   }
 
+  // Clase de badge segun el rol, para destacarlo visualmente.
+  claseRol(rol: string): string {
+    switch (rol) {
+      case 'ROOT':
+        return 'badge badge--red';
+      case 'ADMIN':
+        return 'badge badge--orange';
+      case 'DIRECTOR':
+        return 'badge badge--green';
+      default:
+        return 'badge badge--blue';
+    }
+  }
+
   private opcionesRoles(seleccionado?: string): string {
     return this.roles
       .map(rol => `<option value="${rol}" ${rol === seleccionado ? 'selected' : ''}>${rol}</option>`)

@@ -14,7 +14,7 @@
 
       @if (
         authService.tieneRol(
-          'ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'
+          'ROOT', 'ADMIN', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'
         )
       ) {
 
@@ -52,7 +52,7 @@
 
       @if (
         authService.tieneRol(
-          'ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'
+          'ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'DOCENTE'
         )
       ) {
 
@@ -68,8 +68,21 @@
 
       }
 
+      @if (authService.tieneRol('DOCENTE')) {
 
-      @if (authService.tieneRol('ROOT', 'ADMIN', 'DIRECTOR', 'ADMINISTRATIVO')) {
+        <a
+          routerLink="/mis-cursos"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }">
+
+          <span class="nav-icon">🎓</span>
+          <span>Mis cursos</span>
+
+        </a>
+
+      }
+
+      @if (authService.tieneRol('ROOT', 'ADMIN', 'ADMINISTRATIVO')) {
 
         <a
           routerLink="/administracion"

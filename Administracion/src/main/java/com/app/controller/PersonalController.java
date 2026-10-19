@@ -48,7 +48,7 @@ public class PersonalController {
 	}
 
 	@GetMapping
-	@PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','PRECEPTOR')")
+	@PreAuthorize("hasAnyRole('ROOT','ADMIN','PRECEPTOR')")
 	public ResponseEntity<List<PersonalSalidaDTO>> listarPersonal() {
 		List<PersonalSalidaDTO> personal = personalService.listarPersonal()
 				.stream()
@@ -59,7 +59,7 @@ public class PersonalController {
 	}
 
 	@GetMapping("/{id}")
-	@PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','PRECEPTOR')")
+	@PreAuthorize("hasAnyRole('ROOT','ADMIN','PRECEPTOR')")
 	    public ResponseEntity<PersonalSalidaDTO> obtenerPorId(@PathVariable Long id) {
 	        return personalService.obtenerPorId(id)
 	                .map(PersonalSalidaDTO::from)

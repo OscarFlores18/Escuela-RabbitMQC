@@ -16,6 +16,10 @@ export class CursoService {
     return this.http.get<Curso[]>(this.apiUrl);
   }
 
+  obtenerCursosPorDocente(docenteId: number): Observable<Curso[]> {
+    return this.http.get<Curso[]>(`${this.apiUrl}/docente/${docenteId}`);
+  }
+
   crearCurso(curso: Curso): Observable<Curso> {
     return this.http.post<Curso>(this.apiUrl, curso);
   }

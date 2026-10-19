@@ -11,6 +11,7 @@ interface LoginResponse {
 interface JwtPayload {
   sub: string;
   role: string;
+  personalId?: number | null;
   exp: number;
   iat: number;
 }
@@ -63,6 +64,19 @@ obtenerToken(): string | null {
   tieneRol(...roles: string[]): boolean {
     const rol = this.obtenerRol();
     return rol !== null && roles.includes(rol);
+  }
+
+  // Id de la persona (Personal) vinculada a la cuenta, si la tiene.
+  obtenerPersonalId(): number | null {
+    const token = this.obtenerToken();
+
+    if (!token) {
+      return null;
+    }
+
+    const payload = jwtDecode<JwtPayload>(token);
+
+    return payload.personalId ?? null;
   }
 
   obtenerUsuario(): string | null {

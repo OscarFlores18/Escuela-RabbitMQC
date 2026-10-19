@@ -35,14 +35,19 @@ public class AlumnoServiceImpl implements AlumnoService {
             event.setIdAlumno(nuevo.getId());
             event.setIdCurso(cursoId);
 
-            rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EXCHANGE,
-                RabbitMQConfig.ROUTING_KEY,
-                event
-            );
+            // 1) Cola de alta: inscribe al alumno en el curso
+            publicar(RabbitMQConfig.RK_ALTA, event);
         }
 
         return nuevo;
+    }
+
+    private void publicar(String routingKey, AlumnoEvent event) {
+        rabbitTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE,
+            routingKey,
+            event
+        );
     }
 
     @Override
@@ -81,19 +86,12 @@ public class AlumnoServiceImpl implements AlumnoService {
 
                 Alumno guardado = alumnoRepository.save(alumno);
 
-                // Si se indica un curso, se registra la relacion alumno-curso
-                // mediante el mismo evento usado en el alta.
-                if (dto.cursoId() != null) {
-                    AlumnoEvent event = new AlumnoEvent();
-                    event.setIdAlumno(guardado.getId());
-                    event.setIdCurso(dto.cursoId());
-
-                    rabbitTemplate.convertAndSend(
-                        RabbitMQConfig.EXCHANGE,
-                        RabbitMQConfig.ROUTING_KEY,
-                        event
-                    );
-                }
+                // 2) Cola de modificacion: sincroniza los datos del alumno en los
+                // demas modulos. Si viene un curso, tambien asegura la inscripcion.
+                AlumnoEvent event = new AlumnoEvent();
+                event.setIdAlumno(guardado.getId());
+                event.setIdCurso(dto.cursoId() != null ? dto.cursoId() : 0L);
+                publicar(RabbitMQConfig.RK_MODIFICACION, event);
 
                 return guardado;
             });
@@ -107,6 +105,12 @@ public class AlumnoServiceImpl implements AlumnoService {
             .map(alumno -> {
                 alumno.setActivo(false);
                 alumnoRepository.save(alumno);
+
+                // 3) Cola de baja: quita al alumno de su curso en el modulo Cursos
+                AlumnoEvent event = new AlumnoEvent();
+                event.setIdAlumno(alumno.getId());
+                publicar(RabbitMQConfig.RK_BAJA, event);
+
                 return true;
             })
             .orElse(false);

@@ -4,7 +4,6 @@ export interface Curso {
   division: string;
   grado: string;
   turno: string;
-  materia: string;
   horario: string;
   cupo_maximo: number;
   cantidadAlumnos?: number;

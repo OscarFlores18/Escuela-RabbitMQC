@@ -32,7 +32,17 @@ export class Notas implements OnInit {
 
   ngOnInit(): void {
     this.cargarNotas();
-    this.cargarAlumnos();
+
+    // El nombre del alumno se resuelve desde el modulo Alumnos. El DIRECTOR
+    // puede ver notas pero no alumnos, por lo que no intentamos cargarlos.
+    if (
+      this.authService.tieneRol(
+        'ROOT', 'ADMIN', 'DOCENTE', 'PRECEPTOR', 'SECRETARIA', 'ADMINISTRATIVO'
+      )
+    ) {
+      this.cargarAlumnos();
+    }
+
     this.cargarCursos();
   }
 
@@ -60,7 +70,7 @@ export class Notas implements OnInit {
         this.mapaCursos = new Map(
           cursos.map((c) => [
             c.id,
-            `${c.grado} ${c.division} - ${c.materia}`
+            `${c.grado} ${c.division}`
           ])
         );
         this.cdr.detectChanges();
@@ -72,7 +82,7 @@ export class Notas implements OnInit {
   }
 
   alumnoDe(nota: Nota): string {
-    return this.mapaAlumnos.get(nota.alumnoId) ?? `#${nota.alumnoId}`;
+    return this.mapaAlumnos.get(nota.alumnoId) ?? `Alumno #${nota.alumnoId}`;
   }
 
   cursoDe(nota: Nota): string {
@@ -114,7 +124,7 @@ export class Notas implements OnInit {
       .map(
         (c) =>
           `<option value="${c.id}" ${c.id === seleccionado ? 'selected' : ''}>` +
-          `${c.grado} ${c.division} - ${c.materia}</option>`
+          `${c.grado} ${c.division}</option>`
       )
       .join('');
 

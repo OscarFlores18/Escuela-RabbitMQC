@@ -5,6 +5,7 @@ import { Notas } from './components/notas/notas';
 import { Administracion } from './components/administracion/administracion';
 import { Usuarios } from './components/usuarios/usuarios';
 import { Login } from './components/login/login';
+import { MisCursos } from './components/mis-cursos/mis-cursos';
 import { authGuard } from './guards/auth-guard';
 import { roleGuard } from './guards/role-guard';
 
@@ -15,15 +16,17 @@ export const routes: Routes = [
     component: Login
   },
 
+  // Alumnos: gestion de alumnos (el director NO accede)
   {
     path: 'alumnos',
     component: Alumnos,
     canActivate: [
       authGuard,
-      roleGuard(['ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'])
+      roleGuard(['ROOT', 'ADMIN', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'])
     ]
   },
 
+  // Cursos: el director accede en modo solo lectura
   {
     path: 'cursos',
     component: Cursos,
@@ -33,21 +36,32 @@ export const routes: Routes = [
     ]
   },
 
+  // Notas: el director accede en modo solo lectura; el preceptor NO accede
   {
     path: 'notas',
     component: Notas,
     canActivate: [
       authGuard,
-      roleGuard(['ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'PRECEPTOR', 'DOCENTE'])
+      roleGuard(['ROOT', 'ADMIN', 'DIRECTOR', 'SECRETARIA', 'DOCENTE'])
     ]
   },
 
+  {
+    path: 'mis-cursos',
+    component: MisCursos,
+    canActivate: [
+      authGuard,
+      roleGuard(['DOCENTE'])
+    ]
+  },
+
+  // Administración: gestion de personal (el director NO accede)
   {
     path: 'administracion',
     component: Administracion,
     canActivate: [
       authGuard,
-      roleGuard(['ROOT', 'ADMIN', 'DIRECTOR', 'ADMINISTRATIVO'])
+      roleGuard(['ROOT', 'ADMIN', 'ADMINISTRATIVO'])
     ]
   },
 

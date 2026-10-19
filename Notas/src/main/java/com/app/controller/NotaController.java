@@ -36,7 +36,7 @@ public class NotaController {
 
     // Carga de notas: solo docente
     @PostMapping
-    @PreAuthorize("hasAnyRole('DOCENTE','ADMIN','ROOT','SECRETARIA','PRECEPTOR','ADMINISTRATIVO','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('DOCENTE','ADMIN','ROOT','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<NotaSalidaDTO> altaNota(@Valid @RequestBody NotaAltaDTO dto) {
         Nota nueva = new Nota();
         nueva.setAlumnoId(dto.alumnoId());
@@ -51,7 +51,7 @@ public class NotaController {
 
     // Consulta: docente y director
     @GetMapping
-    @PreAuthorize("hasAnyRole('DOCENTE','DIRECTOR','ROOT','PRECEPTOR','ADMIN','SECRETARIA','ADMINISTRATIVO')")
+    @PreAuthorize("hasAnyRole('DOCENTE','DIRECTOR','ROOT','ADMIN','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<List<NotaSalidaDTO>> listarNotas() {
         List<NotaSalidaDTO> notas = notaService.listarNotas()
                 .stream()
@@ -62,7 +62,7 @@ public class NotaController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DOCENTE','DIRECTOR','ROOT','PRECEPTOR','ADMIN','SECRETARIA','ADMINISTRATIVO')")
+    @PreAuthorize("hasAnyRole('DOCENTE','DIRECTOR','ROOT','ADMIN','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<NotaSalidaDTO> obtenerPorId(@PathVariable Long id) {
         return notaService.obtenerPorId(id)
                 .map(NotaSalidaDTO::from)
@@ -71,7 +71,7 @@ public class NotaController {
     }
 
     @GetMapping("/alumno/{alumnoId}")
-    @PreAuthorize("hasAnyRole('DOCENTE','DIRECTOR','ROOT','PRECEPTOR','ADMIN','SECRETARIA','ADMINISTRATIVO')")
+    @PreAuthorize("hasAnyRole('DOCENTE','DIRECTOR','ROOT','ADMIN','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<List<NotaSalidaDTO>> listarPorAlumno(@PathVariable Long alumnoId) {
         List<NotaSalidaDTO> notas = notaService.listarPorAlumno(alumnoId)
                 .stream()
@@ -82,7 +82,7 @@ public class NotaController {
     }
 
     @GetMapping("/curso/{cursoId}")
-    @PreAuthorize("hasAnyRole('DOCENTE','DIRECTOR','ROOT','PRECEPTOR','ADMIN','SECRETARIA','ADMINISTRATIVO')")
+    @PreAuthorize("hasAnyRole('DOCENTE','DIRECTOR','ROOT','ADMIN','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<List<NotaSalidaDTO>> listarPorCurso(@PathVariable Long cursoId) {
         List<NotaSalidaDTO> notas = notaService.listarPorCurso(cursoId)
                 .stream()
@@ -93,7 +93,7 @@ public class NotaController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DOCENTE','ADMIN','ROOT','SECRETARIA','PRECEPTOR','ADMINISTRATIVO','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('DOCENTE','ADMIN','ROOT','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<NotaSalidaDTO> modificarNota(
             @PathVariable Long id,
             @Valid @RequestBody NotaModificarDTO dto) {
@@ -105,7 +105,7 @@ public class NotaController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DOCENTE','ADMIN','ROOT','SECRETARIA','PRECEPTOR','ADMINISTRATIVO','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('DOCENTE','ADMIN','ROOT','SECRETARIA','ADMINISTRATIVO')")
     public ResponseEntity<Void> eliminarNota(@PathVariable Long id) {
         if (!notaService.eliminarNota(id)) {
             return ResponseEntity.notFound().build();

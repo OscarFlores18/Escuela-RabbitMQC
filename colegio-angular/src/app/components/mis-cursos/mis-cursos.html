@@ -1,0 +1,75 @@
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1>Mis cursos</h1>
+      <p>Curso asignado y alumnos a tu cargo</p>
+    </div>
+  </div>
+
+  @if (sinVinculo) {
+    <div class="card info-box">
+      <p>Tu usuario no está vinculado a un registro de Personal (docente).</p>
+      <p>Contactá a un administrador para asignar tu <strong>personalId</strong>.</p>
+    </div>
+  } @else if (cargando) {
+    <div class="card info-box">
+      <p>Cargando...</p>
+    </div>
+  } @else if (cursos.length === 0) {
+    <div class="card info-box">
+      <p>No tenés cursos asignados por el momento.</p>
+    </div>
+  } @else {
+    <div class="cursos-lista">
+
+      @for (curso of cursos; track curso.id) {
+        <div class="card curso-card">
+
+          <div class="curso-header">
+            <h2>{{ etiquetaCurso(curso) }}</h2>
+            <div class="curso-datos">
+              <span><strong>Horario:</strong> {{ curso.horario }}</span>
+              <span><strong>Cupo:</strong> {{ curso.cantidadAlumnos ?? 0 }} / {{ curso.cupo_maximo }}</span>
+              <span><strong>ID:</strong> #{{ curso.id }}</span>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Apellido</th>
+                  <th>DNI</th>
+                  <th>Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (alumno of alumnosDe(curso); track alumno.id) {
+                  <tr>
+                    <td>{{ alumno.id }}</td>
+                    <td>{{ alumno.nombre }}</td>
+                    <td>{{ alumno.apellido }}</td>
+                    <td>{{ alumno.dni }}</td>
+                    <td>{{ alumno.email }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5">
+                      Este curso no tiene alumnos inscriptos aún.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      }
+
+    </div>
+  }
+
+</div>

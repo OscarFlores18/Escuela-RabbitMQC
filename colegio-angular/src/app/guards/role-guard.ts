@@ -21,6 +21,20 @@ export const roleGuard = (rolesPermitidos: string[]): CanActivateFn => {
       return true;
     }
 
-    return router.createUrlTree(['/alumnos']);
+    // Redirige a la pantalla inicial segun el rol. No se manda siempre a
+    // /alumnos porque hay roles (ej. DIRECTOR) que no tienen acceso a esa vista.
+    if (rol === 'DOCENTE') {
+      return router.createUrlTree(['/mis-cursos']);
+    }
+
+    if (rol === 'ADMINISTRATIVO') {
+      return router.createUrlTree(['/administracion']);
+    }
+
+    if (rol) {
+      return router.createUrlTree(['/cursos']);
+    }
+
+    return router.createUrlTree(['/login']);
   };
 };

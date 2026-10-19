@@ -3,8 +3,10 @@ package com.app.Gateway;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.core.Authentication;
@@ -19,9 +21,14 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Toma el rol del JWT ya autenticado y lo propaga al microservicio destino
- * mediante el header X-Gateway-Role. Tambien elimina los headers internos que
- * el cliente pudiera enviar, para que no puedan falsificarse.
+ * Marca toda peticion que sale del Gateway con el header interno
+ * X-Gateway-Secret, y (si el JWT fue autenticado) propaga el rol en
+ * X-Gateway-Role. Los microservicios exigen ese secreto: si alguien intenta
+ * entrar directo a un microservicio (por ejemplo a su Swagger en el puerto
+ * 8083/8084/8085/8086), no lo tiene y recibe un 403.
+ *
+ * Tambien elimina los headers internos que el cliente pudiera enviar, para que
+ * no puedan falsificarse desde afuera.
  */
 public class GatewayIdentityFilter extends OncePerRequestFilter {
 
@@ -32,6 +39,12 @@ public class GatewayIdentityFilter extends OncePerRequestFilter {
             ROLE_HEADER.toLowerCase(),
             SECRET_HEADER.toLowerCase()
     );
+
+    private final String secreto;
+
+    public GatewayIdentityFilter(String secreto) {
+        this.secreto = secreto;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -49,28 +62,52 @@ public class GatewayIdentityFilter extends OncePerRequestFilter {
             rol = jwt.getClaimAsString("role");
         }
 
+        Map<String, String> cabeceras = new LinkedHashMap<>();
+        cabeceras.put(SECRET_HEADER, secreto);
+
+        if (rol != null) {
+            cabeceras.put(ROLE_HEADER, rol);
+        }
+
         HttpServletRequest requestMutado =
-                new HeaderMutatingRequest(request, ROLE_HEADER, rol);
+                new HeaderMutatingRequest(request, cabeceras);
 
         filterChain.doFilter(requestMutado, response);
     }
 
     private static final class HeaderMutatingRequest extends HttpServletRequestWrapper {
 
-        private final String headerNombre;
-        private final String headerValor;
+        private final Map<String, String> cabeceras;
 
         HeaderMutatingRequest(
                 HttpServletRequest request,
-                String headerNombre,
-                String headerValor) {
+                Map<String, String> cabeceras) {
             super(request);
-            this.headerNombre = headerNombre;
-            this.headerValor = headerValor;
+            this.cabeceras = cabeceras;
+        }
+
+        private String valorDe(String nombre) {
+            if (nombre == null) {
+                return null;
+            }
+            for (Map.Entry<String, String> cabecera : cabeceras.entrySet()) {
+                if (cabecera.getKey().equalsIgnoreCase(nombre)) {
+                    return cabecera.getValue();
+                }
+            }
+            return null;
         }
 
         private boolean esHeaderPropio(String nombre) {
-            return nombre != null && nombre.equalsIgnoreCase(headerNombre);
+            if (nombre == null) {
+                return false;
+            }
+            for (String propio : cabeceras.keySet()) {
+                if (propio.equalsIgnoreCase(nombre)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private boolean esHeaderInterno(String nombre) {
@@ -80,7 +117,7 @@ public class GatewayIdentityFilter extends OncePerRequestFilter {
         @Override
         public String getHeader(String name) {
             if (esHeaderPropio(name)) {
-                return headerValor;
+                return valorDe(name);
             }
             if (esHeaderInterno(name)) {
                 return null;
@@ -91,9 +128,10 @@ public class GatewayIdentityFilter extends OncePerRequestFilter {
         @Override
         public Enumeration<String> getHeaders(String name) {
             if (esHeaderPropio(name)) {
-                return headerValor == null
+                String valor = valorDe(name);
+                return valor == null
                         ? Collections.emptyEnumeration()
-                        : Collections.enumeration(List.of(headerValor));
+                        : Collections.enumeration(List.of(valor));
             }
             if (esHeaderInterno(name)) {
                 return Collections.emptyEnumeration();
@@ -116,8 +154,10 @@ public class GatewayIdentityFilter extends OncePerRequestFilter {
                 }
             }
 
-            if (headerValor != null) {
-                nombres.add(headerNombre);
+            for (Map.Entry<String, String> cabecera : cabeceras.entrySet()) {
+                if (cabecera.getValue() != null) {
+                    nombres.add(cabecera.getKey());
+                }
             }
 
             return Collections.enumeration(nombres);

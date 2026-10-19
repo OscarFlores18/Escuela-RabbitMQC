@@ -27,13 +27,19 @@ public class JwtService {
 
         Instant ahora = Instant.now();
 
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+        JwtClaimsSet.Builder builder = JwtClaimsSet.builder()
                 .issuer("ms-auth")
                 .subject(usuario.getUsername())
                 .issuedAt(ahora)
                 .expiresAt(ahora.plus(expiration, ChronoUnit.SECONDS))
-                .claim("role", usuario.getRol().name())
-                .build();
+                .claim("role", usuario.getRol().name());
+
+        // Solo agregamos el vinculo con personal si la cuenta lo tiene asignado.
+        if (usuario.getPersonalId() != null) {
+            builder.claim("personalId", usuario.getPersonalId());
+        }
+
+        JwtClaimsSet claims = builder.build();
 
         return jwtEncoder
                 .encode(JwtEncoderParameters.from(claims))

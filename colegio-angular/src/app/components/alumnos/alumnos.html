@@ -1,12 +1,12 @@
-<div class="alumnos-container">
+<div class="page">
 
-  <div class="encabezado">
+  <div class="page-header">
     <div>
       <h1>Gestión de Alumnos</h1>
-      <p>Listado de alumnos registrados</p>
+      <p>{{ alumnos.length }} alumno(s) registrado(s)</p>
     </div>
 
-    @if (authService.tieneRol('PRECEPTOR')) {
+    @if (authService.tieneRol('PRECEPTOR', 'ADMIN')) {
       <button
         type="button"
         class="btn-nuevo"
@@ -16,71 +16,80 @@
     }
   </div>
 
-  <div class="tabla-container">
+  @if (alumnos.length === 0) {
 
-    <table>
+    <div class="cards-empty">
+      No hay alumnos registrados.
+    </div>
 
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>DNI</th>
-          <th>Email</th>
-          <th>Curso</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+  } @else {
 
-      <tbody>
+    <div class="cards-grid">
 
-        @for (alumno of alumnos; track alumno.id) {
+      @for (alumno of alumnos; track alumno.id) {
 
-          <tr>
-            <td>{{ alumno.id }}</td>
-            <td>{{ alumno.nombre }}</td>
-            <td>{{ alumno.apellido }}</td>
-            <td>{{ alumno.dni }}</td>
-            <td>{{ alumno.email }}</td>
-            <td>{{ cursoDe(alumno.id) }}</td>
+        <article class="entity-card">
 
-            <td class="acciones">
+          <header class="entity-card__header">
 
-              @if (authService.tieneRol('PRECEPTOR')) {
-                <button
-                  type="button"
-                  class="btn-editar"
-                  (click)="abrirFormularioEdicion(alumno)">
-                  Editar
-                </button>
+            <div class="entity-avatar">
+              {{ alumno.nombre.charAt(0) }}{{ alumno.apellido.charAt(0) }}
+            </div>
 
-                <button
-                  type="button"
-                  class="btn-eliminar"
-                  (click)="confirmarEliminacion(alumno)">
-                  Eliminar
-                </button>
-              }
+            <div class="entity-head">
+              <h2 class="entity-title">
+                {{ alumno.nombre }} {{ alumno.apellido }}
+              </h2>
+              <p class="entity-subtitle">Legajo #{{ alumno.id }}</p>
+            </div>
 
-            </td>
-          </tr>
+            <span
+              class="badge"
+              [class.badge--blue]="enCurso(alumno.id)"
+              [class.badge--gray]="!enCurso(alumno.id)">
+              {{ cursoDe(alumno.id) }}
+            </span>
 
-        }
+          </header>
 
-        @empty {
+          <div class="entity-card__body">
 
-          <tr>
-            <td colspan="7">
-              No hay alumnos registrados.
-            </td>
-          </tr>
+            <div class="entity-row">
+              <span class="label">DNI</span>
+              <span class="value">{{ alumno.dni }}</span>
+            </div>
 
-        }
+            <div class="entity-row">
+              <span class="label">Email</span>
+              <span class="value">{{ alumno.email }}</span>
+            </div>
 
-      </tbody>
+          </div>
 
-    </table>
+          @if (authService.tieneRol('PRECEPTOR', 'ADMIN')) {
+            <footer class="entity-card__footer">
+              <button
+                type="button"
+                class="btn-editar"
+                (click)="abrirFormularioEdicion(alumno)">
+                Editar
+              </button>
 
-  </div>
+              <button
+                type="button"
+                class="btn-eliminar"
+                (click)="confirmarEliminacion(alumno)">
+                Eliminar
+              </button>
+            </footer>
+          }
+
+        </article>
+
+      }
+
+    </div>
+
+  }
 
 </div>

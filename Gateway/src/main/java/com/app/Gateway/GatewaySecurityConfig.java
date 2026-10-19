@@ -32,6 +32,9 @@ public class GatewaySecurityConfig {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    @Value("${gateway.secret:escuela-internal-secret}")
+    private String gatewaySecret;
+
     @Bean
     public JwtDecoder jwtDecoder() {
 
@@ -109,7 +112,7 @@ public class GatewaySecurityConfig {
 
             // Una vez validado el JWT, propagamos el rol al microservicio.
             .addFilterAfter(
-                new GatewayIdentityFilter(),
+                new GatewayIdentityFilter(gatewaySecret),
                 BearerTokenAuthenticationFilter.class
             );
 

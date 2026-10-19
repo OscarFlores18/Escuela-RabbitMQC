@@ -55,6 +55,19 @@ export class Cursos implements OnInit {
     return this.mapaDocentes.get(curso.docenteId) ?? `#${curso.docenteId}`;
   }
 
+  cupoLleno(curso: Curso): boolean {
+    const cupo = curso.cupo_maximo ?? 0;
+    return cupo > 0 && (curso.cantidadAlumnos ?? 0) >= cupo;
+  }
+
+  porcentajeCupo(curso: Curso): number {
+    const cupo = curso.cupo_maximo ?? 0;
+    if (cupo <= 0) {
+      return 0;
+    }
+    return Math.min(100, Math.round(((curso.cantidadAlumnos ?? 0) / cupo) * 100));
+  }
+
   private opcionesDocentes(seleccionado?: number): string {
     const opciones = this.docentes
       .map(
@@ -112,11 +125,6 @@ export class Cursos implements OnInit {
           placeholder="Turno">
 
         <input
-          id="materia"
-          class="swal2-input"
-          placeholder="Materia">
-
-        <input
           id="horario"
           class="swal2-input"
           placeholder="Horario">
@@ -151,9 +159,6 @@ export class Cursos implements OnInit {
         const turno =
           (document.getElementById('turno') as HTMLInputElement).value;
 
-        const materia =
-          (document.getElementById('materia') as HTMLInputElement).value;
-
         const horario =
           (document.getElementById('horario') as HTMLInputElement).value;
 
@@ -168,7 +173,6 @@ export class Cursos implements OnInit {
           !division ||
           !grado ||
           !turno ||
-          !materia ||
           !horario ||
           !cupo_maximo
         ) {
@@ -192,7 +196,6 @@ export class Cursos implements OnInit {
           division,
           grado,
           turno,
-          materia,
           horario,
           cupo_maximo: Number(cupo_maximo),
           docenteId: docenteId ? Number(docenteId) : null
@@ -223,8 +226,6 @@ abrirFormularioEditar(curso: Curso): void {
         placeholder="Grado" value="${curso.grado}">
       <input id="turno" class="swal2-input"
         placeholder="Turno" value="${curso.turno}">
-      <input id="materia" class="swal2-input"
-        placeholder="Materia" value="${curso.materia ?? ''}">
       <input id="horario" class="swal2-input"
         placeholder="Horario" value="${curso.horario ?? ''}">
       <input id="cupo_maximo" class="swal2-input"
@@ -246,8 +247,6 @@ abrirFormularioEditar(curso: Curso): void {
         (document.getElementById('grado') as HTMLInputElement).value.trim();
       const turno =
         (document.getElementById('turno') as HTMLInputElement).value.trim();
-      const materia =
-        (document.getElementById('materia') as HTMLInputElement).value.trim();
       const horario =
         (document.getElementById('horario') as HTMLInputElement).value.trim();
       const cupo_maximo =
@@ -256,7 +255,7 @@ abrirFormularioEditar(curso: Curso): void {
       const docenteId =
         (document.getElementById('docenteId') as HTMLSelectElement).value;
 
-      if (!ciclo_lectivo || !division || !grado || !turno || !materia || !horario || !cupo_maximo) {
+      if (!ciclo_lectivo || !division || !grado || !turno || !horario || !cupo_maximo) {
         Swal.showValidationMessage('Completá todos los campos');
         return false;
       }
@@ -271,7 +270,6 @@ abrirFormularioEditar(curso: Curso): void {
         division,
         grado,
         turno,
-        materia,
         horario,
         cupo_maximo: Number(cupo_maximo),
         docenteId: docenteId ? Number(docenteId) : null

@@ -25,7 +25,6 @@ public class Curso {
     private String division;
     private String grado;
     private String turno;
-    private String materia;
     private String horario;
     private Integer cupo_maximo;
     private Long docenteId;
@@ -80,14 +79,6 @@ public class Curso {
 
     public void setTurno(String turno) {
         this.turno = turno;
-    }
-
-    public String getMateria() {
-        return materia;
-    }
-
-    public void setMateria(String materia) {
-        this.materia = materia;
     }
 
     public String getHorario() {

@@ -1,6 +1,6 @@
-<div class="usuarios-container">
+<div class="page">
 
-  <div class="encabezado">
+  <div class="page-header">
 
     <div>
       <h1>Gestión de Usuarios</h1>
@@ -20,7 +20,7 @@
 
   @if (esRoot) {
 
-    <div class="vistas">
+    <div class="tabs">
 
       <button
         type="button"
@@ -42,133 +42,135 @@
 
   }
 
-  <div class="tabla-container">
+  @if (vista === 'registrados') {
 
-    @if (vista === 'registrados') {
+    @if (usuarios.length === 0) {
 
-      <table>
+      <div class="cards-empty">
+        No hay usuarios registrados.
+      </div>
 
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Usuario</th>
-            <th>Persona</th>
-            <th>Rol</th>
+    } @else {
+
+      <div class="cards-grid">
+
+        @for (usuario of usuarios; track usuario.id) {
+
+          <article class="entity-card">
+
+            <header class="entity-card__header">
+
+              <div class="entity-avatar">
+                {{ usuario.username.charAt(0) }}
+              </div>
+
+              <div class="entity-head">
+                <h2 class="entity-title">{{ usuario.username }}</h2>
+                <p class="entity-subtitle">{{ personaDe(usuario) }}</p>
+              </div>
+
+              <span class="badge" [class]="claseRol(usuario.rol)">
+                {{ usuario.rol }}
+              </span>
+
+            </header>
+
+            <div class="entity-card__body">
+
+              <div class="entity-row">
+                <span class="label">Persona vinculada</span>
+                <span class="value">{{ personaDe(usuario) }}</span>
+              </div>
+
+            </div>
+
             @if (esRoot) {
-              <th>Acciones</th>
-            }
-          </tr>
-        </thead>
-
-        <tbody>
-
-          @for (usuario of usuarios; track usuario.id) {
-
-            <tr>
-
-              <td>{{ usuario.id }}</td>
-
-              <td>{{ usuario.username }}</td>
-
-              <td>{{ personaDe(usuario) }}</td>
-
-              <td>{{ usuario.rol }}</td>
-
-              @if (esRoot) {
-                <td class="acciones">
-                  <button
-                    type="button"
-                    class="btn-editar"
-                    (click)="abrirFormularioEditar(usuario)">
-                    Editar
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn-eliminar"
-                    (click)="confirmarEliminar(usuario)">
-                    Eliminar
-                  </button>
-                </td>
-              }
-
-            </tr>
-
-          }
-
-          @empty {
-
-            <tr>
-              <td [attr.colspan]="esRoot ? 5 : 4">
-                No hay usuarios registrados.
-              </td>
-            </tr>
-
-          }
-
-        </tbody>
-
-      </table>
-
-    }
-
-    @if (vista === 'sin-cuenta') {
-
-      <table>
-
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Cargo</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          @for (persona of personalSinCuenta; track persona.id) {
-
-            <tr>
-
-              <td>{{ persona.id }}</td>
-
-              <td>{{ persona.nombre }} {{ persona.apellido }}</td>
-
-              <td>{{ persona.email }}</td>
-
-              <td>{{ persona.cargo }}</td>
-
-              <td class="acciones">
+              <footer class="entity-card__footer">
                 <button
                   type="button"
                   class="btn-editar"
-                  (click)="abrirFormularioUsuario(persona)">
-                  Crear cuenta
+                  (click)="abrirFormularioEditar(usuario)">
+                  Editar
                 </button>
-              </td>
 
-            </tr>
+                <button
+                  type="button"
+                  class="btn-eliminar"
+                  (click)="confirmarEliminar(usuario)">
+                  Eliminar
+                </button>
+              </footer>
+            }
 
-          }
+          </article>
 
-          @empty {
+        }
 
-            <tr>
-              <td colspan="5">
-                Todo el personal registrado ya tiene una cuenta.
-              </td>
-            </tr>
-
-          }
-
-        </tbody>
-
-      </table>
+      </div>
 
     }
 
-  </div>
+  }
+
+  @if (vista === 'sin-cuenta') {
+
+    @if (personalSinCuenta.length === 0) {
+
+      <div class="cards-empty">
+        Todo el personal registrado ya tiene una cuenta.
+      </div>
+
+    } @else {
+
+      <div class="cards-grid">
+
+        @for (persona of personalSinCuenta; track persona.id) {
+
+          <article class="entity-card">
+
+            <header class="entity-card__header">
+
+              <div class="entity-avatar">
+                {{ persona.nombre.charAt(0) }}{{ persona.apellido.charAt(0) }}
+              </div>
+
+              <div class="entity-head">
+                <h2 class="entity-title">
+                  {{ persona.nombre }} {{ persona.apellido }}
+                </h2>
+                <p class="entity-subtitle">Legajo #{{ persona.id }}</p>
+              </div>
+
+              <span class="badge badge--orange">{{ persona.cargo }}</span>
+
+            </header>
+
+            <div class="entity-card__body">
+
+              <div class="entity-row">
+                <span class="label">Email</span>
+                <span class="value">{{ persona.email }}</span>
+              </div>
+
+            </div>
+
+            <footer class="entity-card__footer">
+              <button
+                type="button"
+                class="btn-primary"
+                (click)="abrirFormularioUsuario(persona)">
+                Crear cuenta
+              </button>
+            </footer>
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  }
 
 </div>

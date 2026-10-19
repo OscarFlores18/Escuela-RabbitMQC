@@ -1,13 +1,12 @@
-<div class="notas-container">
+<div class="page">
 
-  <div class="encabezado">
-
+  <div class="page-header">
     <div>
       <h1>Gestión de Notas</h1>
-      <p>Listado de calificaciones registradas</p>
+      <p>{{ notas.length }} nota(s) registrada(s)</p>
     </div>
 
-    @if (authService.tieneRol('DOCENTE')) {
+    @if (authService.tieneRol('DOCENTE', 'ADMIN')) {
       <button
         type="button"
         class="btn-nuevo"
@@ -15,81 +14,80 @@
         + Nueva nota
       </button>
     }
-
   </div>
 
-  <div class="tabla-container">
+  @if (notas.length === 0) {
 
-    <table>
+    <div class="cards-empty">
+      No hay notas registradas.
+    </div>
 
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Alumno</th>
-          <th>Curso</th>
-          <th>Materia</th>
-          <th>Nota</th>
-          <th>Fecha</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+  } @else {
 
-      <tbody>
+    <div class="cards-grid">
 
-        @for (nota of notas; track nota.id) {
+      @for (nota of notas; track nota.id) {
 
-          <tr>
+        <article class="entity-card">
 
-            <td>{{ nota.id }}</td>
+          <header class="entity-card__header">
 
-            <td>{{ alumnoDe(nota) }}</td>
+            <div class="entity-avatar">
+              {{ nota.materia ? nota.materia.charAt(0) : '★' }}
+            </div>
 
-            <td>{{ cursoDe(nota) }}</td>
+            <div class="entity-head">
+              <h2 class="entity-title">{{ nota.materia || 'Sin materia' }}</h2>
+              <p class="entity-subtitle">{{ cursoDe(nota) }}</p>
+            </div>
 
-            <td>{{ nota.materia }}</td>
+            <span
+              class="badge"
+              [class.badge--green]="(nota.nota ?? 0) >= 6"
+              [class.badge--red]="(nota.nota ?? 0) < 6">
+              {{ nota.nota }}
+            </span>
 
-            <td>{{ nota.nota }}</td>
+          </header>
 
-            <td>{{ nota.fecha }}</td>
+          <div class="entity-card__body">
 
-            <td class="acciones">
+            <div class="entity-row">
+              <span class="label">Alumno</span>
+              <span class="value">{{ alumnoDe(nota) }}</span>
+            </div>
 
-              @if (authService.tieneRol('DOCENTE')) {
-                <button
-                  type="button"
-                  class="btn-editar"
-                  (click)="abrirFormularioEditar(nota)">
-                  Editar
-                </button>
+            <div class="entity-row">
+              <span class="label">Fecha</span>
+              <span class="value">{{ nota.fecha || '—' }}</span>
+            </div>
 
-                <button
-                  type="button"
-                  class="btn-eliminar"
-                  (click)="confirmarEliminar(nota)">
-                  Eliminar
-                </button>
-              }
+          </div>
 
-            </td>
+          @if (authService.tieneRol('DOCENTE', 'ADMIN')) {
+            <footer class="entity-card__footer">
+              <button
+                type="button"
+                class="btn-editar"
+                (click)="abrirFormularioEditar(nota)">
+                Editar
+              </button>
 
-          </tr>
+              <button
+                type="button"
+                class="btn-eliminar"
+                (click)="confirmarEliminar(nota)">
+                Eliminar
+              </button>
+            </footer>
+          }
 
-        }
+        </article>
 
-        @empty {
+      }
 
-          <tr>
-            <td colspan="7">
-              No hay notas registradas.
-            </td>
-          </tr>
+    </div>
 
-        }
-
-      </tbody>
-
-    </table>
-
-  </div>
+  }
 
 </div>

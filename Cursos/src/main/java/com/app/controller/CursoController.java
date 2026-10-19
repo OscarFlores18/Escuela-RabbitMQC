@@ -33,7 +33,6 @@ public class CursoController {
         nuevo.setDivision(dto.division());
         nuevo.setGrado(dto.grado());
         nuevo.setTurno(dto.turno());
-        nuevo.setMateria(dto.materia());
         nuevo.setHorario(dto.horario());
         nuevo.setCupo_maximo(dto.cupo_maximo());
         nuevo.setDocenteId(dto.docenteId());
@@ -61,18 +60,37 @@ public class CursoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/docente/{docenteId}")
+    @PreAuthorize("hasAnyRole('ROOT','ADMIN','DIRECTOR','DOCENTE','PRECEPTOR','SECRETARIA','ADMINISTRATIVO')")
+    public ResponseEntity<List<CursoSalidaDTO>> listarPorDocente(@PathVariable Long docenteId) {
+        List<CursoSalidaDTO> cursos = cursoService.listarPorDocente(docenteId)
+                .stream()
+                .map(CursoSalidaDTO::from)
+                .toList();
+
+        return ResponseEntity.ok(cursos);
+    }
+
     @PutMapping("/{id}")
-    @PreAuthorize("denyAll()")
+    @PreAuthorize("hasAnyRole('ROOT','PRECEPTOR','ADMIN')")
     public ResponseEntity<CursoSalidaDTO> modificarCurso(
             @PathVariable Long id,
             @RequestBody CursoModificarDTO dto) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return cursoService.modificarCurso(id, dto)
+                .map(CursoSalidaDTO::from)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("denyAll()")
+    @PreAuthorize("hasAnyRole('ROOT','PRECEPTOR','ADMIN')")
     public ResponseEntity<String> eliminarCurso(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (!cursoService.eliminarCurso(id)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("No se puede eliminar el curso (no existe o tiene alumnos asociados).");
+        }
+
+        return ResponseEntity.ok("Curso eliminado correctamente.");
     }
 
     // Inscribir/Quitar alumno: denegado segun requerimiento

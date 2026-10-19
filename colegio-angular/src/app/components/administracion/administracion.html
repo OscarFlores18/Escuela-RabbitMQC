@@ -1,10 +1,9 @@
-<div class="administracion-container">
+<div class="page">
 
-  <div class="encabezado">
-
+  <div class="page-header">
     <div>
       <h1>Gestión de Personal</h1>
-      <p>Listado del personal de la institución</p>
+      <p>{{ personal.length }} persona(s) registrada(s)</p>
     </div>
 
     @if (authService.tieneRol('ROOT', 'ADMIN')) {
@@ -15,69 +14,72 @@
         + Nuevo personal
       </button>
     }
-
   </div>
 
-  <div class="tabla-container">
+  @if (personal.length === 0) {
 
-    <table>
+    <div class="cards-empty">
+      No hay personal registrado.
+    </div>
 
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>Email</th>
-          <th>Cargo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+  } @else {
 
-      <tbody>
+    <div class="cards-grid">
 
-        @for (persona of personal; track persona.id) {
+      @for (persona of personal; track persona.id) {
 
-          <tr>
-            <td>{{ persona.id }}</td>
-            <td>{{ persona.nombre }}</td>
-            <td>{{ persona.apellido }}</td>
-            <td>{{ persona.email }}</td>
-            <td>{{ persona.cargo }}</td>
-            <td class="acciones">
-              @if (authService.tieneRol('ROOT', 'ADMIN')) {
-                <button
-                  type="button"
-                  class="btn-editar"
-                  (click)="abrirFormularioEditar(persona)">
-                  Editar
-                </button>
+        <article class="entity-card">
 
-                <button
-                  type="button"
-                  class="btn-eliminar"
-                  (click)="confirmarEliminar(persona)">
-                  Eliminar
-                </button>
-              }
-            </td>
-          </tr>
+          <header class="entity-card__header">
 
-        }
+            <div class="entity-avatar">
+              {{ persona.nombre.charAt(0) }}{{ persona.apellido.charAt(0) }}
+            </div>
 
-        @empty {
+            <div class="entity-head">
+              <h2 class="entity-title">
+                {{ persona.nombre }} {{ persona.apellido }}
+              </h2>
+              <p class="entity-subtitle">Legajo #{{ persona.id }}</p>
+            </div>
 
-          <tr>
-            <td colspan="5">
-              No hay personal registrado.
-            </td>
-          </tr>
+            <span class="badge badge--orange">{{ persona.cargo }}</span>
 
-        }
+          </header>
 
-      </tbody>
+          <div class="entity-card__body">
 
-    </table>
+            <div class="entity-row">
+              <span class="label">Email</span>
+              <span class="value">{{ persona.email }}</span>
+            </div>
 
-  </div>
+          </div>
+
+          @if (authService.tieneRol('ROOT', 'ADMIN')) {
+            <footer class="entity-card__footer">
+              <button
+                type="button"
+                class="btn-editar"
+                (click)="abrirFormularioEditar(persona)">
+                Editar
+              </button>
+
+              <button
+                type="button"
+                class="btn-eliminar"
+                (click)="confirmarEliminar(persona)">
+                Eliminar
+              </button>
+            </footer>
+          }
+
+        </article>
+
+      }
+
+    </div>
+
+  }
 
 </div>

@@ -41,7 +41,7 @@ export class Alumnos implements OnInit {
         this.cursos = cursos;
         const mapa = new Map<number, string>();
         cursos.forEach((curso) => {
-          const etiqueta = `${curso.grado} ${curso.division} - ${curso.materia}`;
+          const etiqueta = `${curso.grado} ${curso.division}`;
           (curso.alumnoIds ?? []).forEach((alumnoId) => {
             mapa.set(alumnoId, etiqueta);
           });
@@ -56,7 +56,11 @@ export class Alumnos implements OnInit {
   }
 
   cursoDe(alumnoId: number): string {
-    return this.mapaCursoPorAlumno.get(alumnoId) ?? '—';
+    return this.mapaCursoPorAlumno.get(alumnoId) ?? 'Sin curso';
+  }
+
+  enCurso(alumnoId: number): boolean {
+    return this.mapaCursoPorAlumno.has(alumnoId);
   }
 
   // Id del curso en el que esta inscripto el alumno (si lo esta).
@@ -73,7 +77,7 @@ export class Alumnos implements OnInit {
       .map(
         (c) =>
           `<option value="${c.id}" ${c.id === seleccionado ? 'selected' : ''}>` +
-          `${c.grado} ${c.division} - ${c.materia}</option>`
+          `${c.grado} ${c.division}</option>`
       )
       .join('');
 

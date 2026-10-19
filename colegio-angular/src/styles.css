@@ -1,1 +1,553 @@
-/* You can add global styles to this file, and also import other style files */
+/* =========================================================
+   Diseño global inspirado en Modrinth
+   Tokens oficiales: tipografía Inter, verde de marca #00af5c,
+   superficies grises claras y tarjetas blancas.
+   ========================================================= */
+
+:root {
+  /* Superficies (tema claro) */
+  --surface-1: #ebebeb;
+  --surface-2: #f5f5f5;
+  --surface-2-5: #eef1f5;
+  --surface-3: #f8f8f8;
+  --surface-4: #ffffff;
+  --surface-5: #dddddd;
+
+  /* Marca */
+  --brand: #00af5c;
+  --brand-hover: #04914f;
+  --brand-strong: #0a7141;
+  --brand-bg: rgba(0, 175, 92, 0.1);
+  --brand-bg-hover: rgba(0, 175, 92, 0.18);
+  --brand-contrast: #ffffff;
+
+  /* Acentos */
+  --red: #cb2245;
+  --red-bg: rgba(203, 34, 69, 0.1);
+  --red-bg-hover: rgba(203, 34, 69, 0.18);
+  --orange: #c66019;
+  --orange-bg: rgba(224, 131, 37, 0.1);
+  --orange-bg-hover: rgba(224, 131, 37, 0.18);
+  --blue: #1f68c0;
+  --blue-bg: rgba(31, 104, 192, 0.1);
+  --blue-bg-hover: rgba(31, 104, 192, 0.18);
+
+  /* Texto */
+  --text-primary: #1a202c;
+  --text-default: #2c2e31;
+  --text-tertiary: #484d54;
+  --text-secondary: #686a72;
+
+  /* Bordes */
+  --divider: #dddddd;
+  --border: rgba(161, 161, 161, 0.35);
+
+  /* Radios */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+
+  /* Sombras */
+  --shadow-card: 0px 2px 4px 0px rgba(50, 50, 100, 0.1);
+  --shadow-raised: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  --shadow-floating: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-1);
+  color: var(--text-default);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================================================
+   Página
+   ========================================================= */
+
+.page {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.page-header p {
+  margin: 0.375rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+/* =========================================================
+   Tarjeta
+   ========================================================= */
+
+.card {
+  background: var(--surface-4);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+/* =========================================================
+   Listados en tarjetas (estilo Invgate / service desk)
+   ========================================================= */
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 1.25rem;
+}
+
+.entity-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface-4);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.entity-card:hover {
+  box-shadow: var(--shadow-floating);
+  transform: translateY(-2px);
+}
+
+.entity-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--divider);
+}
+
+.entity-avatar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--brand-bg);
+  color: var(--brand-strong);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.entity-head {
+  min-width: 0;
+  flex: 1;
+}
+
+.entity-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.entity-subtitle {
+  margin: 0.125rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.entity-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.entity-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 0.875rem;
+}
+
+.entity-row .label {
+  color: var(--text-secondary);
+}
+
+.entity-row .value {
+  color: var(--text-default);
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.entity-card__footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid var(--divider);
+  background: var(--surface-3);
+}
+
+/* Badges / etiquetas de estado */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.badge--green {
+  background: var(--brand-bg);
+  color: var(--brand-strong);
+}
+
+.badge--blue {
+  background: var(--blue-bg);
+  color: var(--blue);
+}
+
+.badge--red {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.badge--orange {
+  background: var(--orange-bg);
+  color: var(--orange);
+}
+
+.badge--gray {
+  background: var(--surface-5);
+  color: var(--text-tertiary);
+}
+
+/* Barra de progreso para el cupo de los cursos */
+
+.cupo-bar {
+  height: 0.5rem;
+  margin-top: 0.25rem;
+  border-radius: 999px;
+  background: var(--surface-5);
+  overflow: hidden;
+}
+
+.cupo-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--brand);
+  transition: width 0.2s ease;
+}
+
+.cupo-bar__fill.lleno {
+  background: var(--red);
+}
+
+/* Estado vacío dentro de un listado de tarjetas */
+
+.cards-empty {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--surface-4);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+
+/* =========================================================
+   Tabla
+   ========================================================= */
+
+.table-wrap {
+  overflow-x: auto;
+  background: var(--surface-4);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface-4);
+}
+
+th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  white-space: nowrap;
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--divider);
+}
+
+td {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  color: var(--text-default);
+  font-size: 0.9375rem;
+  border-bottom: 1px solid var(--surface-5);
+}
+
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+tbody tr:hover {
+  background: var(--surface-3);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr td[colspan] {
+  text-align: center;
+  padding: 2.25rem 1rem;
+  color: var(--text-secondary);
+}
+
+/* =========================================================
+   Acciones de fila
+   ========================================================= */
+
+.acciones {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   Botones
+   ========================================================= */
+
+.btn,
+.btn-nuevo,
+.btn-primary,
+.btn-secondary,
+.btn-editar,
+.btn-edit,
+.btn-eliminar,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary,
+.btn-nuevo {
+  background: var(--brand);
+  color: var(--brand-contrast);
+  box-shadow: var(--shadow-raised);
+}
+
+.btn-primary:hover,
+.btn-nuevo:hover {
+  background: var(--brand-hover);
+}
+
+.btn-secondary {
+  background: var(--surface-4);
+  color: var(--text-default);
+  border-color: var(--border);
+  box-shadow: var(--shadow-raised);
+}
+
+.btn-secondary:hover {
+  background: var(--surface-3);
+}
+
+.btn-editar,
+.btn-edit {
+  background: var(--blue-bg);
+  color: var(--blue);
+}
+
+.btn-editar:hover,
+.btn-edit:hover {
+  background: var(--blue-bg-hover);
+}
+
+.btn-eliminar,
+.btn-danger {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.btn-eliminar:hover,
+.btn-danger:hover {
+  background: var(--red-bg-hover);
+}
+
+/* Botones usados dentro de filas de tabla (más compactos) */
+.acciones .btn,
+.acciones .btn-nuevo,
+.acciones .btn-primary,
+.acciones .btn-editar,
+.acciones .btn-edit,
+.acciones .btn-eliminar,
+.acciones .btn-danger {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+}
+
+/* =========================================================
+   Tabs
+   ========================================================= */
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.25rem;
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  width: fit-content;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab.activa {
+  background: var(--surface-4);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-raised);
+}
+
+/* =========================================================
+   Campos de formulario (usados en modales SweetAlert2)
+   ========================================================= */
+
+.swal2-popup {
+  font-family: 'Inter', sans-serif !important;
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-floating) !important;
+  padding: 1.5rem !important;
+}
+
+.swal2-title {
+  font-size: 1.375rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+}
+
+.swal2-html-container {
+  font-size: 0.9375rem !important;
+  color: var(--text-tertiary) !important;
+}
+
+.swal2-input,
+.swal2-select {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.9375rem !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-raised) !important;
+  margin: 0.5rem auto !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.swal2-input:focus,
+.swal2-select:focus {
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px var(--brand-bg) !important;
+}
+
+.swal2-confirm,
+.swal2-styled.swal2-confirm {
+  background-color: var(--brand) !important;
+  border-radius: var(--radius-sm) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  box-shadow: var(--shadow-raised) !important;
+}
+
+.swal2-confirm:hover {
+  background-color: var(--brand-hover) !important;
+}
+
+.swal2-cancel,
+.swal2-styled.swal2-cancel {
+  background-color: var(--surface-4) !important;
+  color: var(--text-default) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  box-shadow: var(--shadow-raised) !important;
+}
+
+.swal2-cancel:hover {
+  background-color: var(--surface-3) !important;
+}
